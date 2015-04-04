@@ -72,11 +72,9 @@ trait FormatPure {
    * @param value the pure value to always read.
    * @param json the pure json to always write.
    */
-  def pure[T](value: => T, json: => JsValue): Format[T] = {
-    Format(
-      Reads.pure(value),
-      Writes(_ => json)
-    )
+  def pure[T](value: => T, json: => JsValue): Format[T] = new Format[T] {
+    override def reads(json: JsValue): JsResult[T] = JsSuccess(value)
+    override def writes(o: T): JsValue = json
   }
 }
 
