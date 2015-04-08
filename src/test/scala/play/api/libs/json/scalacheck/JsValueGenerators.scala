@@ -23,11 +23,17 @@ trait JsValueGenerators {
    */
   def defaultMaxDepth: Depth = Depth(2)
 
-  implicit def arbJsValue: Arbitrary[JsValue] = Arbitrary(genJsValue)
+  implicit def arbJsValue(implicit
+    maxDepth: Depth = defaultMaxDepth,
+    maxWidth: Width = defaultMaxWidth): Arbitrary[JsValue] = Arbitrary(genJsValue)
 
-  implicit def arbJsObject: Arbitrary[JsObject] = Arbitrary(genJsObject)
+  implicit def arbJsObject(implicit
+    maxDepth: Depth = defaultMaxDepth,
+    maxWidth: Width = defaultMaxWidth): Arbitrary[JsObject] = Arbitrary(genJsObject)
 
-  implicit def arbJsArray: Arbitrary[JsArray] = Arbitrary(genJsArray)
+  implicit def arbJsArray(implicit
+    maxDepth: Depth = defaultMaxDepth,
+    maxWidth: Width = defaultMaxWidth): Arbitrary[JsArray] = Arbitrary(genJsArray)
 
   implicit def arbJsString(implicit arbString: Arbitrary[String]): Arbitrary[JsString] = Arbitrary {
     arbString.arbitrary map JsString

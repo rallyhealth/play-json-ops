@@ -1,8 +1,8 @@
 package play.api.libs.json.scalacheck
 
-import org.scalacheck.{Prop, Gen, Arbitrary}
-import org.scalatest.{Matchers, ParallelTestExecution, FlatSpec}
+import org.scalacheck.{Gen, Prop}
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
+import org.scalatest.{Assertions, FlatSpec, Matchers, ParallelTestExecution}
 import play.api.libs.json._
 
 import scala.annotation.tailrec
@@ -12,14 +12,10 @@ with GeneratorDrivenPropertyChecks
 with Matchers
 with JsValueGenerators {
 
-  // removes implicits in JsValueGenerators to avoid duplicate implicits in tests
-  override def arbJsValue: Arbitrary[JsValue] = super.arbJsValue
-  override def arbJsObject: Arbitrary[JsObject] = super.arbJsObject
-  override def arbJsArray: Arbitrary[JsArray] = super.arbJsArray
-
   // Controls the overall time these tests take to run
-  override val defaultMaxDepth = Depth(4)
-  override val defaultMaxWidth = Width(4)
+  // For better testing coverage, this needs to be greater than defaultMaxDepth / defaultMaxWidth
+  implicit val maxDepth: Depth = defaultMaxDepth + 3
+  implicit val maxWidth: Width = defaultMaxWidth + 3
 
   @tailrec private def maxPathDepth(all: Seq[JsValue], current: Depth = 0): Depth = {
     val nestedValues = all flatMap {
@@ -35,28 +31,25 @@ with JsValueGenerators {
 
   "Width" should behave like aCount(Width)
 
-  /* I saw a strange issue when testMaxDepth / testMaxWidth is implicit
-   * and Depth / Width extend AnyVal.
+  /* Be careful when defining implicits in an outer class, sometimes the compiler will
+   * not throw an "ambiguous implicit values" exception when the values extend AnyVal.
    *
    * Instead of getting a duplicate implicit compiler error, the tests were running with
    * super.maxDepth and super.maxWidth, so I figured I would sanity check here.
+   *
    * If you see a compiler error or this test fails, then you must have made something
    * implicit that maybe shouldn't be, but at least if this test fails then you know
    * why you are seeing a StackOverflow exception.
+   *
+   * This is primarily just to sanity check that the behavior of implicit Depth and Width
+   * work as intended.
    */
   "Depth and Width" should "be differentiated in implicit parameters by type at compile-time" in {
-    implicit val localDepth = Depth(11)
-    implicit val localWidth = Width(22)
-    def verifyNotEqual(implicit depth: Depth, width: Width): Unit = {
-      assert(depth == localDepth)
-      assert(width == localWidth)
-    }
-    verifyNotEqual
+    val localScope = new JsValueGeneratorsSubclass
+    localScope.verifyImplicitOverrides()
   }
 
-  behavior of "genJsPrimitive"
-
-  it should behave like aPrimitiveJsValue(genJsPrimitive)
+  "genJsPrimitive" should behave like aPrimitiveJsValue(genJsPrimitive)
 
   "genJsValue with a depth of 0" should behave like aPrimitiveJsValue(genJsValue(Depth(0)))
 
@@ -90,15 +83,15 @@ with JsValueGenerators {
 
   def aJsValueContainer(genJs: (Depth, Width) => Gen[_ <: JsValue]): Unit = {
     it should "should reach a depth greater than 1" in {
-      Prop.exists(genJs(Depth(1), defaultMaxWidth)) { json =>
+      Prop.exists(genJs(Depth(1), maxWidth)) { json =>
         maxPathDepth(Seq(json)) > 1
       }
     }
 
     it should "have a depth no larger than provided" in {
       val genJsWithDepth: Gen[(Int, JsValue)] = for {
-        maxDepth <- Gen.choose(1, defaultMaxDepth.depth)
-        js <- genJs(Depth(maxDepth), defaultMaxWidth)
+        maxDepth <- Gen.choose(1, maxDepth.depth)
+        js <- genJs(Depth(maxDepth), maxWidth)
       } yield (maxDepth, js)
       forAll(genJsWithDepth) { case (max, json) =>
         maxPathDepth(Seq(json)) <= max
@@ -108,10 +101,21 @@ with JsValueGenerators {
 
   def anArbitraryJsValue(genJs: Gen[_ <: JsValue]): Unit = {
     it should "never generate more depth than the specified depth" in {
-      forAll(genJs) { json =>
-        println(Json.prettyPrint(json))
-        assert(maxPathDepth(Seq(json)) <= defaultMaxDepth)
+      forAll() { (json: JsValue) =>
+        assert(maxPathDepth(Seq(json)) <= maxDepth)
       }
     }
   }
+}
+
+class JsValueGeneratorsSubclass(implicit localDepth: Depth, localWidth: Width)
+  extends JsValueGenerators
+  with Assertions {
+
+  def doVerifyImplicitOverrides(implicit depth: Depth, width: Width): Unit = {
+    assert(depth == localDepth)
+    assert(width == localWidth)
+  }
+
+  def verifyImplicitOverrides(): Unit = doVerifyImplicitOverrides
 }
