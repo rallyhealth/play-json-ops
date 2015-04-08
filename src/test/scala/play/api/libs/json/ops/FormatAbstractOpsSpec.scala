@@ -58,18 +58,6 @@ class FormatAbstractOpsSpec extends FlatSpec
     val b = arbB.arbitrary.sample.get
     Json.toJson(b)  // should be fine
   }
-
-  behavior of "UnrecognizedTypeKey"
-
-//  it should "use the JsonTransform to redact any values in the error message" in {
-//    implicit val transform = JsonTransform.redactPaths(Seq(__ \ Generic.keyFieldName, __ \ "value"))
-//    implicit val format: OFormat[Generic] = Json.formatAbstract[Generic] {
-//      case None => ???
-//    }
-//    forAll() { (o: Generic) =>
-//      o
-//    }
-//  }
 }
 
 sealed trait Generic {
