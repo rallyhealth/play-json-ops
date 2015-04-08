@@ -3,7 +3,7 @@ name := "play-json-ops"
 
 organization := "me.jeffmay"
 
-version := "0.1.0"
+version := "0.2.0"
 
 // TODO: Cross-compile
 
