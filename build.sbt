@@ -25,3 +25,6 @@ libraryDependencies := Seq(
   "org.scalatest" %% "scalatest" % "2.2.4" % "test"
 ).map(_.withSources())
 
+lazy val scalaCheckOps = RootProject(uri("git://github.com/jeffmay/scalacheck-ops.git#v0.1.0"))
+
+lazy val jsonOps = project in file(".") dependsOn scalaCheckOps
