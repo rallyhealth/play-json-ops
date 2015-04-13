@@ -15,6 +15,10 @@ implicits and tools for:
 
 Pretty much all of these tools become available when you extend [JsonImplicits](src/main/scala/play/api/libs/json/ops/JsonImplicits.scala)
 
+## Dependencies
+
+- [scalacheck-ops](https://github.com/jeffmay/scalacheck-ops): for the ability to convert ScalaCheck `Gen` into an `Iterator`
+
 ## JsonImplicits
 
 By extending `JsonImplicits`, you get access to all the implicit `TupleFormats` as well as the `Json.oformat`
@@ -25,6 +29,35 @@ and `Json.owrites` macros. These are all be pretty self-explanatory:
   `OFormat` or `OWrites`, respectively.
 - `TupleFormats` will provide implicit `Reads` and `Writes` for all 22 tuple types by writing the result
   as a `JsArray`
+  
+## Automatic Automated Tests
+
+To get free test coverage, just extend `PlayJsonFormatSpec[T]` where `T` is a serializable type that you
+would like to create a suite of tests for. All it requires is a ScalaCheck generator of the same type or
+a sequence of examples.
+
+This will use ScalaTest to create the test cases, however it will work just as well with Specs2
+
+```scala
+
+case class Example(value: String)
+
+object Example {
+  implicit val format = Json.format[Example]
+}
+
+object ExampleGenerators {
+  implicit def arbExample(implicit arbString: Arbitrary[String]): Arbitrary[Example] =
+    Arbitrary(arbString.map(Example(_)))
+}
+
+import ExampleGenerators._
+
+// Free unit tests for serializing and deserializing Example values
+// Also works with implicit Shrink[Example]
+class ExampleFormatSpec extends PlayJsonFormatSpec[Example]
+
+```
 
 ## Creating Formats for Traits and Abstract Classes
 
@@ -35,20 +68,20 @@ format: `Any => OFormat[_ <: Generic]`.
 
 The pattern works as follows:
 
-1. Create the formats of each of the specific formats using [[AbstractJsonOps.formatWithType]]
-   and the [[JsonMacroOps.oformat]] macro.
+1. Create the formats of each of the specific formats using `AbstractJsonOps.formatWithType`
+   and the `JsonMacroOps.oformat` macro.
 
    This will append the key field (even if it isn't in the case class constructor args) to the output json.
 
-2. Create an implicit [[TypeKeyExtractor]] for the generic trait or abstract class on the companion object
+2. Create an implicit `TypeKeyExtractor` for the generic trait or abstract class on the companion object
    of that class.
 
-   This is required for the [[AbstractJsonOps.formatWithType]] to work properly and avoids repeating
+   This is required for the `AbstractJsonOps.formatWithType` to work properly and avoids repeating
    unnecessary boilerplate on each of the specific serializers to write out the key or the generic
    serializer to read the key.
 
-3. Finally, define an implicit [[Format]] for your generic trait or abstract class using
-   [[AbstractJsonOps.formatAbstract]] by providing a partial function from the extracted key (from #2)
+3. Finally, define an implicit `Format` for your generic trait or abstract class using
+   `AbstractJsonOps.formatAbstract` by providing a partial function from the extracted key (from #2)
    to the specific serializer (from #1). Any unmatched keys will throw an exception.
 
 ```scala
