@@ -49,3 +49,5 @@ trait DurationGenerators {
   }
 
 }
+
+object DurationGenerators extends DurationGenerators

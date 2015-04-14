@@ -1,20 +1,30 @@
 package play.api.libs.json.ops
 
-import org.scalactic.Tolerance
-import org.scalatest.FlatSpec
-import org.scalatest.prop.GeneratorDrivenPropertyChecks
-import play.api.libs.json.Json
-import play.api.libs.json.scalacheck.DurationGenerators
+import org.scalacheck.Arbitrary.arbitrary
+import play.api.libs.json.scalacheck.DurationGenerators._
+import play.api.libs.json.scalatest.PlayJsonFormatSpec
 
 import scala.concurrent.duration._
 
-class DurationFormatSpec extends FlatSpec
-with GeneratorDrivenPropertyChecks
-with Tolerance
-with JsonImplicits
-with DurationGenerators {
+class FiniteDurationArrayFormatSpec
+  extends PlayJsonFormatSpec[FiniteDuration](arbitrary[FiniteDuration])(DurationFormat.array.finiteDurationFormat, implicitly)
+  with AssertDurationEquality[FiniteDuration]
 
-  def assertAlmostEqual(expected: Duration, actual: Duration): Unit = {
+class FiniteDurationStringFormatSpec
+  extends PlayJsonFormatSpec[FiniteDuration](arbitrary[FiniteDuration])(DurationFormat.string.finiteDurationFormat, implicitly)
+  with AssertDurationEquality[FiniteDuration]
+
+class DurationArrayFormatSpec
+  extends PlayJsonFormatSpec[Duration](arbitrary[Duration])(DurationFormat.array.durationFormat, implicitly)
+  with AssertDurationEquality[Duration]
+
+class DurationStringFormatSpec
+  extends PlayJsonFormatSpec[Duration](arbitrary[FiniteDuration])(DurationFormat.string.durationFormat, implicitly)
+  with AssertDurationEquality[Duration]
+
+private[ops] trait AssertDurationEquality[T <: Duration] extends PlayJsonFormatSpec[T] {
+
+  override protected def assertPostSerializationEquality(expected: T, actual: T): Unit = {
     if (expected.isFinite()) {
       assert(actual.isFinite(), s"$actual is not finite and cannot be equal to $expected")
       assert(expected.unit == actual.unit)
@@ -26,46 +36,6 @@ with DurationGenerators {
     else {
       assert(!actual.isFinite(), s"$actual is finite and cannot be equal to $expected")
       assert(expected == actual)
-    }
-  }
-
-  behavior of "DurationFormat.string"
-
-  it should "read the Duration it writes" in {
-    forAll() { (duration: Duration) =>
-      import DurationFormat.string.format
-      val json = Json.toJson(duration)
-      val result = json.asOrThrow[Duration]
-      assertAlmostEqual(result, duration)
-    }
-  }
-
-  it should "read the FiniteDuration it writes as a Duration" in {
-    forAll() { (duration: FiniteDuration) =>
-      import DurationFormat.string.format
-      val json = Json.toJson(duration)
-      val result = json.asOrThrow[Duration]
-      assertAlmostEqual(result, duration)
-    }
-  }
-
-  behavior of "DurationFormat.array"
-
-  it should "read the Duration it writes" in {
-    forAll() { (duration: Duration) =>
-      import DurationFormat.array.format
-      val json = Json.toJson(duration)
-      val result = json.asOrThrow[Duration]
-      assertAlmostEqual(result, duration)
-    }
-  }
-
-  it should "read the FiniteDuration it writes as a Duration" in {
-    forAll() { (duration: FiniteDuration) =>
-      import DurationFormat.array.format
-      val json = Json.toJson(duration)
-      val result = json.asOrThrow[Duration]
-      assertAlmostEqual(result, duration)
     }
   }
 }
