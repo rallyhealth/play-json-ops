@@ -3,12 +3,16 @@ package play.api.libs.json.ops
 import play.api.libs.json._
 
 import scala.concurrent.duration._
+import scala.concurrent.duration.ops._
+import scala.util.{Failure, Success}
 import scala.util.control.NonFatal
 
 /**
- * Provides an implicit reader for Scala [[Duration]]s.
+ * Provides implicit readers for Scala [[Duration]]s.
  */
 trait ImplicitDurationReads {
+
+  implicit protected def finiteDurationReads: Reads[FiniteDuration]
 
   implicit protected def durationReads: Reads[Duration]
 }
@@ -28,17 +32,33 @@ trait ImplicitDurationWrites {
  */
 trait StringDurationFormat extends ImplicitDurationReads with ImplicitDurationWrites {
 
-  override implicit protected val durationReads: Reads[Duration] = new Reads[Duration] {
-    override def reads(json: JsValue): JsResult[Duration] = json.validate[String] flatMap { str =>
-      try JsSuccess(Duration(str))
+  override implicit val finiteDurationReads: Reads[FiniteDuration] = new Reads[FiniteDuration] {
+    override def reads(json: JsValue): JsResult[FiniteDuration] = json.validate[String] flatMap { str =>
+      try {
+        DurationOps.parseLossless(str) match {
+          case Success(finite: FiniteDuration) => JsSuccess(finite)
+          case _ => JsError("error.expected.duration.finite")
+        }
+      }
       catch {
-        case NonFatal(ex: NumberFormatException) => JsError(ex.toString)
+        case NonFatal(ex: NumberFormatException) => JsError(ex.getMessage)
       }
     }
   }
 
-  override implicit protected val durationWrites: Writes[Duration] = new Writes[Duration] {
-    override def writes(o: Duration): JsValue = JsString(o.toString)
+  override implicit val durationReads: Reads[Duration] = new Reads[Duration] {
+    override def reads(json: JsValue): JsResult[Duration] = json.validate[String] flatMap { str =>
+      DurationOps.parseLossless(str) match {
+        case Success(duration) =>
+          JsSuccess(duration)
+        case Failure(ex) =>
+          JsError(s"error.expected.duration (${ex.getMessage})")
+      }
+    }
+  }
+
+  override implicit val durationWrites: Writes[Duration] = new Writes[Duration] {
+    override def writes(duration: Duration): JsValue = JsString(DurationFormat.asString(duration))
   }
 }
 
@@ -49,18 +69,37 @@ trait StringDurationFormat extends ImplicitDurationReads with ImplicitDurationWr
  */
 trait ArrayDurationFormat extends ImplicitDurationReads with ImplicitDurationWrites with ImplicitTupleFormats {
 
-  override implicit protected val durationReads: Reads[Duration] = new Reads[Duration] {
-    override def reads(json: JsValue): JsResult[Duration] = json.validate[(Long, String)] flatMap {
+  override implicit val durationReads: Reads[Duration] = new Reads[Duration] {
+    override def reads(json: JsValue): JsResult[Duration] = {
+      json.asOpt[String] match {
+        case Some(str) =>
+          DurationOps.parseLossless(str) match {
+            case Success(duration) => JsSuccess(duration)
+            case Failure(ex) => JsError(s"error.expected.duration (${ex.getMessage})")
+          }
+        case None =>
+          finiteDurationReads reads json
+      }
+    }
+  }
+
+  override implicit val finiteDurationReads: Reads[FiniteDuration] = new Reads[FiniteDuration] {
+    override def reads(json: JsValue): JsResult[FiniteDuration] = json.validate[(Long, String)] flatMap {
       case (x, unit) =>
-        try JsSuccess(Duration(x, unit))
+        try JsSuccess(Duration(x, unit.toLowerCase))
         catch {
-          case NonFatal(ex: NumberFormatException) => JsError(ex.toString)
+          case NonFatal(ex: NumberFormatException) => JsError(ex.getMessage)
         }
     }
   }
 
-  override implicit protected val durationWrites: Writes[Duration] = new Writes[Duration] {
-    override def writes(o: Duration): JsValue = JsArray(Seq(JsNumber(o.length), JsString(o.unit.toString)))
+  override implicit val durationWrites: Writes[Duration] = new Writes[Duration] {
+    override def writes(duration: Duration): JsValue = {
+      if (duration.isFinite())
+        JsArray(Seq(JsNumber(duration.length), JsString(duration.unit.toString)))
+      else // strip off the Duration prefix and serialize as string
+        JsString(DurationFormat.asString(duration))
+    }
   }
 }
 
@@ -75,7 +114,7 @@ trait ArrayDurationFormat extends ImplicitDurationReads with ImplicitDurationWri
 trait ForgivingDurationReads extends ImplicitDurationReads {
 
   override implicit protected val durationReads: Reads[Duration] = {
-    DurationFormat.string.format orElse DurationFormat.array.format
+    DurationFormat.string.durationFormat orElse DurationFormat.array.durationFormat
   }
 }
 
@@ -84,11 +123,20 @@ trait ForgivingDurationReads extends ImplicitDurationReads {
  */
 object DurationFormat {
 
+  def asString(duration: Duration): String = duration match {
+    case inf: Duration.Infinite => asString(inf)
+    case finite => finite.toString
+  }
+
+  def asString(inf: Duration.Infinite): String = inf.toString.substring("Duration.".length)
+
   object string extends StringDurationFormat {
-    implicit val format: Format[Duration] = Format(durationReads, durationWrites)
+    implicit val durationFormat: Format[Duration] = Format(durationReads, durationWrites)
+    implicit val finiteDurationFormat: Format[FiniteDuration] = Format(finiteDurationReads, durationWrites)
   }
 
   object array extends ArrayDurationFormat {
-    implicit val format: Format[Duration] = Format(durationReads, durationWrites)
+    implicit val durationFormat: Format[Duration] = Format(durationReads, durationWrites)
+    implicit val finiteDurationFormat: Format[FiniteDuration] = Format(finiteDurationReads, durationWrites)
   }
 }

@@ -1,6 +1,7 @@
 package play.api.libs.json.scalacheck
 
-import org.scalacheck.{Arbitrary, Gen}
+import org.scalacheck.Shrink._
+import org.scalacheck.{Shrink, Arbitrary, Gen}
 import play.api.libs.json._
 
 import scala.language.implicitConversions
@@ -110,5 +111,27 @@ trait JsValueGenerators {
     for {
       fields <- Gen.listOfN(maxWidth, genFields(maxDepth - 1, maxWidth))
     } yield JsObject(fields)
+  }
+
+  // Shrinks for better error output
+
+  implicit val shrinkJsArray: Shrink[JsArray] = Shrink {
+    arr =>
+      val stream: Stream[JsArray] = shrink(arr.value) map JsArray
+      stream
+  }
+
+  implicit val shrinkJsObject: Shrink[JsObject] = Shrink {
+    obj =>
+      val stream: Stream[JsObject] = shrink(obj.value) map { fields => JsObject(fields.toSeq) }
+      stream
+  }
+
+  implicit val shrinkJsValue: Shrink[JsValue] = Shrink {
+    case array: JsArray => shrink(array)
+    case obj: JsObject  => shrink(obj)
+    case JsString(str)  => shrink(str) map JsString
+    case JsNumber(num)  => shrink(num) map JsNumber
+    case JsNull | JsUndefined() | JsBoolean(_) => Stream.empty[JsValue]
   }
 }

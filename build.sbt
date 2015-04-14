@@ -21,7 +21,12 @@ scalacOptions := {
 
 libraryDependencies := Seq(
   "com.typesafe.play" %% "play-json" % "2.3.7",
-  "org.scalacheck" %% "scalacheck" % "1.12.2" % "test",
-  "org.scalatest" %% "scalatest" % "2.2.4" % "test"
+  // these are not limited to the test scope since there is library code that enables free unit tests
+  // when extending a generic test class for PlaySerializationTests
+  "org.scalacheck" %% "scalacheck" % "1.12.2",
+  "org.scalatest" %% "scalatest" % "2.2.4"
 ).map(_.withSources())
 
+lazy val scalaCheckOps = RootProject(uri("git://github.com/jeffmay/scalacheck-ops.git#v0.1.0"))
+
+lazy val jsonOps = project in file(".") dependsOn scalaCheckOps

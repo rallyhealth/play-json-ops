@@ -26,9 +26,7 @@ class UTCFormatSpec extends FlatSpec {
     assert(notUTC.when.getZone == dt.getZone)
   }
 
-  behavior of "extending UTCFormat"
-
-  it must "override the standard Format[DateTime]" in {
+  "extending UTCFormat" must "override the standard Format[DateTime]" in {
     val dt = new DateTime
     val useUTC = Json.toJson(UseUTC(dt)).as[UseUTC]
     assert(useUTC.when.getZone == DateTimeZone.UTC)
