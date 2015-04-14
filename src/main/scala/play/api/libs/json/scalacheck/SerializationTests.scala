@@ -1,10 +1,12 @@
 package play.api.libs.json.scalacheck
 
+import org.scalacheck.Shrink
 import play.api.libs.json._
 
 import scala.reflect.ClassTag
 import scala.testing.{GenericTestSuite, TestSuiteBridge}
-import scala.util.control.NonFatal
+import scala.util.Try
+import scala.util.control.{NoStackTrace, NonFatal}
 
 /**
  * A common base class for providing a free serialization specification.
@@ -19,6 +21,8 @@ trait SerializationTests[T] extends GenericTestSuite {
   self: TestSuiteBridge =>
 
   def examples: Seq[T]
+
+  protected def shrink: Shrink[T]
 
   protected def clsTag: ClassTag[T]
 
@@ -69,7 +73,27 @@ trait PlaySerializationTests[T] extends SerializationTests[T] {
       }
     }
     for (((expected, actual), asWritten) <- examples zip reconstructed zip decomposed) {
-      assertSame(expected, actual, asWritten)
+      assertSameWithShrink(expected, actual, asWritten)
+    }
+  }
+
+  protected def assertSameWithShrink(expected: T, actual: T, asWritten: JsValue): Unit = {
+    try assertSame(expected, actual, asWritten)
+    catch {
+      case NonFatal(originalEx) =>
+        var lastEx = originalEx
+        var shrinks = 0
+        for (simpler <- shrink.shrink(expected)) {
+          shrinks += 1
+          val json = Try(playFormat.writes(simpler)) getOrElse { throw lastEx }
+          val expected = Try(json as playFormat) getOrElse { throw lastEx }
+          try assertSame(simpler, expected, json)
+          catch {
+            case NonFatal(ex) => lastEx = ex
+          }
+        }
+        lastEx.addSuppressed(new RuntimeException(s"Applied $shrinks shrinks") with NoStackTrace)
+        throw lastEx
     }
   }
 }
@@ -83,6 +107,7 @@ abstract class PlayJsonFormatTests[T](
   override val examples: Seq[T]
 )(implicit
   override protected implicit val playFormat: Format[T],
+  override protected implicit val shrink: Shrink[T],
   override protected val clsTag: ClassTag[T]
 ) extends PlaySerializationTests[T] {
    self: TestSuiteBridge =>

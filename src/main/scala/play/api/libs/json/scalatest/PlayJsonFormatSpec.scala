@@ -1,7 +1,7 @@
 package play.api.libs.json.scalatest
 
 import org.scalacheck.ops._
-import org.scalacheck.{Arbitrary, Gen}
+import org.scalacheck.{Shrink, Arbitrary, Gen}
 import org.scalatest.FlatSpecLike
 import play.api.libs.json.Format
 import play.api.libs.json.scalacheck.PlayJsonFormatTests
@@ -18,7 +18,7 @@ import scala.testing.scalatest.ScalaTestBridge
  * Import an [[Arbitrary]] of your model to have even better test coverage, as ScalaCheck will
  * trace the edge cases of serialization for you.
  */
-class PlayJsonFormatSpec[T](examples: Seq[T])(implicit playFormat: Format[T], clsTag: ClassTag[T])
+class PlayJsonFormatSpec[T](examples: Seq[T])(implicit playFormat: Format[T], shrink: Shrink[T], clsTag: ClassTag[T])
   extends PlayJsonFormatTests[T](examples)
   with FlatSpecLike
   with ScalaTestBridge {

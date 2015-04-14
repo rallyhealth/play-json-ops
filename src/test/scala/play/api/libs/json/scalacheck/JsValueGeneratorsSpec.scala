@@ -2,7 +2,7 @@ package play.api.libs.json.scalacheck
 
 import org.scalacheck.{Gen, Prop}
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
-import org.scalatest.{Assertions, FlatSpec, Matchers, ParallelTestExecution}
+import org.scalatest.{Assertions, FlatSpec, Matchers}
 import play.api.libs.json._
 
 import scala.annotation.tailrec
