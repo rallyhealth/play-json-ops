@@ -1,6 +1,6 @@
 package play.api.libs.json.ops
 
-import org.scalatest.{ParallelTestExecution, FlatSpec}
+import org.scalatest.FlatSpec
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
 import play.api.libs.json._
 import play.api.libs.json.scalacheck.JsValueGenerators
@@ -8,7 +8,7 @@ import play.api.libs.json.scalacheck.JsValueGenerators
 import scala.annotation.tailrec
 import scala.util.Random
 
-class JsonTransformSpec extends FlatSpec with ParallelTestExecution
+class JsonTransformSpec extends FlatSpec
 with GeneratorDrivenPropertyChecks
 with JsValueGenerators
 with JsonImplicits {

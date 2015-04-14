@@ -12,7 +12,7 @@ object Troll {
   implicit val format = Json.format[Troll]
 }
 
-class JsValueOpsSpec extends FlatSpec with ParallelTestExecution
+class JsValueOpsSpec extends FlatSpec
 with GeneratorDrivenPropertyChecks
 with Matchers
 with JsValueGenerators

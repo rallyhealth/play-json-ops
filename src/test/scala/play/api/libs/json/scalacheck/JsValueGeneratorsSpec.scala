@@ -7,7 +7,7 @@ import play.api.libs.json._
 
 import scala.annotation.tailrec
 
-class JsValueGeneratorsSpec extends FlatSpec with ParallelTestExecution
+class JsValueGeneratorsSpec extends FlatSpec
 with GeneratorDrivenPropertyChecks
 with Matchers
 with JsValueGenerators {
