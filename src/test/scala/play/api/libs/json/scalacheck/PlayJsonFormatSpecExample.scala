@@ -61,7 +61,7 @@ with GeneratorDrivenPropertyChecks {
 
   "PlayJsonFormatFlatSpecExample" should "allow adding additional specs" in {
     forAll() { (example: Example) =>
-      assert(example.value ne null)
+      assert(Json.toJson(example).as[Example] == example)
     }
   }
 

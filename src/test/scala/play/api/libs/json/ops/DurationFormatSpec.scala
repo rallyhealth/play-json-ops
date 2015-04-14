@@ -6,20 +6,20 @@ import play.api.libs.json.scalatest.PlayJsonFormatSpec
 
 import scala.concurrent.duration._
 
-class FiniteDurationArrayFormatSpec
-  extends PlayJsonFormatSpec[FiniteDuration](arbitrary[FiniteDuration])(DurationFormat.array.finiteDurationFormat, implicitly)
+class FiniteDurationArrayFormatSpec extends PlayJsonFormatSpec[FiniteDuration](
+  arbitrary[FiniteDuration])(DurationFormat.array.finiteDurationFormat, implicitly, implicitly)
   with AssertDurationEquality[FiniteDuration]
 
-class FiniteDurationStringFormatSpec
-  extends PlayJsonFormatSpec[FiniteDuration](arbitrary[FiniteDuration])(DurationFormat.string.finiteDurationFormat, implicitly)
+class FiniteDurationStringFormatSpec extends PlayJsonFormatSpec[FiniteDuration](
+  arbitrary[FiniteDuration])(DurationFormat.string.finiteDurationFormat, implicitly, implicitly)
   with AssertDurationEquality[FiniteDuration]
 
-class DurationArrayFormatSpec
-  extends PlayJsonFormatSpec[Duration](arbitrary[Duration])(DurationFormat.array.durationFormat, implicitly)
+class DurationArrayFormatSpec extends PlayJsonFormatSpec[Duration](
+  arbitrary[Duration])(DurationFormat.array.durationFormat, implicitly, implicitly)
   with AssertDurationEquality[Duration]
 
-class DurationStringFormatSpec
-  extends PlayJsonFormatSpec[Duration](arbitrary[FiniteDuration])(DurationFormat.string.durationFormat, implicitly)
+class DurationStringFormatSpec extends PlayJsonFormatSpec[Duration](
+  arbitrary[FiniteDuration])(DurationFormat.string.durationFormat, implicitly, implicitly)
   with AssertDurationEquality[Duration]
 
 private[ops] trait AssertDurationEquality[T <: Duration] extends PlayJsonFormatSpec[T] {

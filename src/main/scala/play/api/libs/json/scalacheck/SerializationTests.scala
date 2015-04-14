@@ -104,29 +104,16 @@ trait PlaySerializationTests[T] extends SerializationTests[T] {
  * This provides a sample constructor that is easy to fulfill in the subclass.
  */
 abstract class PlayJsonFormatTests[T](
-  override val examples: Seq[T]
-)(implicit
+  override val examples: Seq[T],
   override protected implicit val playFormat: Format[T],
-  override protected implicit val shrink: Shrink[T],
-  override protected val clsTag: ClassTag[T]
+  override protected val clsTag: ClassTag[T],
+  override protected val shrink: Shrink[T]
 ) extends PlaySerializationTests[T] {
    self: TestSuiteBridge =>
 
-  /* sadly this does not work in Scala 2.10...
-[error] /code/play-json-ops/src/main/scala/play/api/libs/json/scalacheck/PlayJsonFormatSpec.scala:93: too many arguments for constructor Predef: ()type
-[error]     this(gen.toIterator.take(samples).toSeq)
-[error]     ^
-[error] /code/play-json-ops/src/main/scala/play/api/libs/json/scalacheck/PlayJsonFormatSpec.scala:96: too many arguments for constructor Predef: ()type
-[error]     this(arb.arbitrary, samples)
-   */
+  /* sadly alternate constructors do not work with self-types properly in Scala 2.10,
+   * and an implicit argument list would have the same signature after type erasure
+   * so it is up to the subclasses to provide a nicer interface.
+   **/
 
-  // Extending TestSuiteBridge instead of using a self-type fixes it, but has a worse compiler error because it
-  // doesn't tell you how to fix it (ie. extending some subclass of TestSuiteBridge).
-  // I'm deferring these helpful constructors to the subclasses to avoid the issue
-
-//  def this(gen: Gen[T], samples: Int = 100)(implicit playFormat: Format[T], clsTag: ClassTag[T]) =
-//    this(gen.toIterator.take(samples).toSeq)
-//
-//  def this(samples: Int = 100)(implicit arb: Arbitrary[T], playFormat: Format[T], clsTag: ClassTag[T]) =
-//    this(arb.arbitrary, samples)
 }

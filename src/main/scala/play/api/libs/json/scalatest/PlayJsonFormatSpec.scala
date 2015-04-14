@@ -18,18 +18,19 @@ import scala.testing.scalatest.ScalaTestBridge
  * Import an [[Arbitrary]] of your model to have even better test coverage, as ScalaCheck will
  * trace the edge cases of serialization for you.
  */
-class PlayJsonFormatSpec[T](examples: Seq[T])(implicit playFormat: Format[T], shrink: Shrink[T], clsTag: ClassTag[T])
-  extends PlayJsonFormatTests[T](examples)
+class PlayJsonFormatSpec[T](examples: Seq[T])(implicit playFormat: Format[T], clsTag: ClassTag[T], shrink: Shrink[T])
+  extends PlayJsonFormatTests[T](examples, playFormat, clsTag, shrink)
   with FlatSpecLike
   with ScalaTestBridge {
 
-  def this(gen: Gen[T], samples: Int)(implicit playFormat: Format[T], clsTag: ClassTag[T]) =
+  def this(gen: Gen[T], samples: Int)(implicit playFormat: Format[T], clsTag: ClassTag[T], shrink: Shrink[T]) =
     this(gen.toIterator.take(samples).toSeq)
 
-  def this(gen: Gen[T])(implicit playFormat: Format[T], clsTag: ClassTag[T]) = this(gen, 100)
+  def this(gen: Gen[T])(implicit playFormat: Format[T], clsTag: ClassTag[T], shrink: Shrink[T]) = this(gen, 100)
 
-  def this(samples: Int)(implicit arb: Arbitrary[T], playFormat: Format[T], clsTag: ClassTag[T]) =
+  def this(samples: Int)(implicit playFormat: Format[T], clsTag: ClassTag[T], shrink: Shrink[T], arb: Arbitrary[T]) =
     this(arb.arbitrary, samples)
 
-  def this()(implicit arb: Arbitrary[T], playFormat: Format[T], clsTag: ClassTag[T]) = this(arb.arbitrary)
+  def this()(implicit playFormat: Format[T], clsTag: ClassTag[T], shrink: Shrink[T], arb: Arbitrary[T]) =
+    this(arb.arbitrary)
 }
