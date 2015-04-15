@@ -9,16 +9,18 @@ import scala.util.Try
 import scala.util.control.{NoStackTrace, NonFatal}
 
 /**
- * A common base class for providing a free serialization specification.
+ * Mixin that adds some free serialization tests.
  *
- * This currently supports testing Lift and Play serialization, as well as cross-serialization
- * from a Lift serialized value read by Play and vice versa.
+ * This will add a test that verifies that every model written will be read back to a value that
+ * is equivalent to the original example, and print a detailed error message if not.
  *
- * Subclasses of this will test that for each example, the serialized result can be read back
- * into a value that is equal to the original example.
+ * If you have a custom way of determining equality that lives outside of the model class itself,
+ * you can override the methods used for comparison.
  */
 trait SerializationTests[T] extends GenericTestSuite {
   self: TestSuiteBridge =>
+
+  type Serialized
 
   def examples: Seq[T]
 
@@ -28,19 +30,82 @@ trait SerializationTests[T] extends GenericTestSuite {
 
   protected def className: String = clsTag.runtimeClass.getSimpleName
 
+  protected def serialize(model: T): Serialized
+
+  /**
+   * A function that either returns an error message or the deserialized model.
+   */
+  protected def deserialize(serialized: Serialized): Either[String, T]
+
+  /**
+   * Override this method to define a way to serialize the test json to a human-friendly format.
+   */
+  protected def prettyPrint(serialized: Serialized): String
+
+  /**
+   * Override this method if you want to define a different way to assert equality than the test
+   * framework supplies by default.
+   */
   protected def assertPostSerializationEquality(expected: T, actual: T): Unit = self.assertEqual(expected, actual)
 
-  protected def assertSame(expected: T, actual: T, prettyJson: String): Unit = {
+  /**
+   * Override this method if you want to print a different error on failure.
+   */
+  protected def assertSame(expected: T, actual: T, serialized: Serialized): Unit = {
     try assertPostSerializationEquality(expected, actual)
     catch {
       case NonFatal(ex) =>
+        val prettyOutput = prettyPrint(serialized)
         fail(
           s"The expected and actual values are not equal.\n\n" +
           s"expected:\n$expected\n\n" +
           s"actual:\n$actual\n\n" +
-          s"json:\n$prettyJson\n\n",
+          s"json:\n$prettyOutput\n\n",
           Some(ex)
         )
+    }
+  }
+
+  /**
+   * Uses the provided [[shrink]] to shrink a failing example to its simplest form that still fails the test.
+   *
+   * @note you can override this method to just call [[assertSame]] if you don't want to apply the shrink.
+   */
+  protected def assertSameWithShrink(expected: T, actual: T, serialized: Serialized): Unit = {
+    try assertSame(expected, actual, serialized)
+    catch {
+      case NonFatal(originalEx) =>
+        var lastEx = originalEx
+        var shrinks = 0
+        for (simpler <- shrink.shrink(expected)) {
+          shrinks += 1
+          val output = Try(serialize(simpler)) getOrElse { throw lastEx }
+          val expected = Try(deserialize(output).right.get) getOrElse { throw lastEx }
+          try assertSame(simpler, expected, output)
+          catch {
+            case NonFatal(ex) => lastEx = ex
+          }
+        }
+        lastEx.addSuppressed(new RuntimeException(s"Applied $shrinks shrinks") with NoStackTrace)
+        throw lastEx
+    }
+  }
+
+  // Register the actual test
+  addTest(s"Format[$className] should read what it writes as JsValue in") {
+    val decomposed = examples.par map serialize
+    val reconstructed = decomposed map { written =>
+      val pretty = prettyPrint(written)
+      val result = deserialize(written)
+      result match {
+        case Right(model) =>
+          model
+        case Left(errorMsg) =>
+          fail(s"Could not read an instance of $className from:\n$pretty\n\nPlay detected errors:\n$errorMsg\n")
+      }
+    }
+    for (((expected, actual), asWritten) <- examples zip reconstructed zip decomposed) {
+      assertSameWithShrink(expected, actual, asWritten)
     }
   }
 }
@@ -51,51 +116,18 @@ trait SerializationTests[T] extends GenericTestSuite {
 trait PlaySerializationTests[T] extends SerializationTests[T] {
   self: TestSuiteBridge =>
 
+  override type Serialized = JsValue
+
   protected implicit def playFormat: Format[T]
 
-  protected def assertSame(actual: T, expected: T, decomposed: JsValue): Unit = {
-    assertSame(expected, actual, Json.prettyPrint(decomposed))
+  override protected def serialize(model: T): Serialized = Json.toJson(model)
+
+  override protected def deserialize(serialized: Serialized): Either[String, T] = serialized.validate[T] match {
+    case JsSuccess(model, _) => Right(model)
+    case JsError(errors)     => Left(prettyPrint(JsError.toFlatJson(errors)))
   }
 
-  addTest(s"Format[$className] should read what it writes as JsValue in") {
-    val decomposed = examples.par map playFormat.writes
-    val reconstructed = decomposed map { written =>
-      val pretty = Json.prettyPrint(written)
-      val result = playFormat.reads(written)
-      result match {
-        case JsSuccess(extracted, _) => extracted
-        case JsError(errors) =>
-          val errorDetails = Json.prettyPrint(JsError.toFlatJson(errors))
-          fail(
-            s"Could not read an instance of $className from:\n$pretty\n\n" +
-              s"Play detected errors:\n$errorDetails\n"
-          )
-      }
-    }
-    for (((expected, actual), asWritten) <- examples zip reconstructed zip decomposed) {
-      assertSameWithShrink(expected, actual, asWritten)
-    }
-  }
-
-  protected def assertSameWithShrink(expected: T, actual: T, asWritten: JsValue): Unit = {
-    try assertSame(expected, actual, asWritten)
-    catch {
-      case NonFatal(originalEx) =>
-        var lastEx = originalEx
-        var shrinks = 0
-        for (simpler <- shrink.shrink(expected)) {
-          shrinks += 1
-          val json = Try(playFormat.writes(simpler)) getOrElse { throw lastEx }
-          val expected = Try(json as playFormat) getOrElse { throw lastEx }
-          try assertSame(simpler, expected, json)
-          catch {
-            case NonFatal(ex) => lastEx = ex
-          }
-        }
-        lastEx.addSuppressed(new RuntimeException(s"Applied $shrinks shrinks") with NoStackTrace)
-        throw lastEx
-    }
-  }
+  override protected def prettyPrint(serialized: Serialized): String = Json.prettyPrint(serialized)
 }
 
 /**

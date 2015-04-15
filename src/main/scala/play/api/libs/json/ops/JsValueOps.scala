@@ -16,7 +16,8 @@ class JsValueOps(val json: JsValue) extends AnyVal {
    *
    * @note Sometimes you may want to redact sensitive information from the json in the
    *       exception message. To do this, just define an implicit JsonTransform for your
-   *       specific type, and it will
+   *       specific type, and it will apply the transformer before putting the original
+   *       json into the exception message.
    */
   def asOrThrow[A: Reads: ClassTag: JsonTransform]: A = json.validate[A] match {
     case JsSuccess(a, _) => a

@@ -4,6 +4,9 @@ import scala.concurrent.duration._
 import scala.language.implicitConversions
 import scala.util.{Failure, Success, Try}
 
+/**
+ * Provides useful operations on generic [[Duration]]s.
+ */
 object DurationOps {
 
   /**
@@ -73,9 +76,10 @@ object DurationOps {
     timeUnitLabels.flatMap { case (unit, names) => expandLabels(names) map (_ -> unit) }.toMap
 }
 
+/**
+ * Provides useful operations on [[FiniteDuration]]s.
+ */
 object FiniteDurationOps {
-
-
 
   /**
    * Same as [[Duration.toUnit]] except avoids loss of precision by not converting to Double first.
@@ -97,6 +101,9 @@ object FiniteDurationOps {
   }
 }
 
+/**
+ * Provides additional operations on [[FiniteDuration]] with no runtime allocation overhead.
+ */
 class FiniteDurationOps(val duration: FiniteDuration) extends AnyVal {
 
   /**
@@ -115,6 +122,11 @@ class FiniteDurationOps(val duration: FiniteDuration) extends AnyVal {
   def toUnitPrecise(unit: TimeUnit): FiniteDuration = FiniteDurationOps.convertToUnitPrecisely(duration, unit)
 }
 
+/**
+ * Extend this trait to get additional operations on [[FiniteDuration]]s.
+ *
+ * These are also made available by adding `import scala.concurrent.duration.ops._`
+ */
 trait DurationImplicits {
 
   implicit def fromFiniteDuration(duration: FiniteDuration): FiniteDurationOps =
