@@ -113,7 +113,7 @@ trait ArrayDurationFormat extends ImplicitDurationReads with ImplicitDurationWri
  */
 trait ForgivingDurationReads extends ImplicitDurationReads {
 
-  override implicit protected val durationReads: Reads[Duration] = {
+  override implicit val durationReads: Reads[Duration] = {
     DurationFormat.string.durationFormat orElse DurationFormat.array.durationFormat
   }
 }
