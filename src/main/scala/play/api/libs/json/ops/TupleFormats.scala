@@ -6,7 +6,7 @@ import scala.language.implicitConversions
 object TupleFormats extends ImplicitTupleFormats
 
 /**
- * Extend this to have implicit Reads and Writes for tuples.
+ * Extend this to have implicit [[Reads]] and [[Writes]] for tuples.
  *
  * The format for these tuples is to use JsArray.
  *

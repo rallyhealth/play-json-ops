@@ -8,7 +8,7 @@ import scala.util.{Failure, Success}
 import scala.util.control.NonFatal
 
 /**
- * Provides implicit readers for Scala Durations.
+ * Provides implicit readers for Scala [[Duration]]s.
  */
 trait ImplicitDurationReads {
 
@@ -18,7 +18,7 @@ trait ImplicitDurationReads {
 }
 
 /**
- * Provides an implicit writer for Scala Durations.
+ * Provides an implicit writer for Scala [[Duration]]s.
  */
 trait ImplicitDurationWrites {
 
@@ -26,7 +26,7 @@ trait ImplicitDurationWrites {
 }
 
 /**
- * Reads and writes a Scala Duration as a flat string.
+ * Reads and writes a Scala [[Duration]] as a flat string.
  *
  * For example: Duration("1 second") => "1 second"
  */
@@ -63,7 +63,7 @@ trait StringDurationFormat extends ImplicitDurationReads with ImplicitDurationWr
 }
 
 /**
- * Reads and writes a Scala Duration as an array with the number and the TimeUnit as a string.
+ * Reads and writes a Scala [[Duration]] as an array with the number and the [[TimeUnit]] as a string.
  *
  * For example: Duration("1 second") => [1, "SECONDS"]
  */
@@ -104,8 +104,8 @@ trait ArrayDurationFormat extends ImplicitDurationReads with ImplicitDurationWri
 }
 
 /**
- * Reads a Scala Duration as either a string or array as written by StringDurationFormat
- * or ArrayDurationFormat.
+ * Reads a Scala [[Duration]] as either a string or array as written by [[StringDurationFormat]]
+ * or [[ArrayDurationFormat]].
  *
  * For example:
  *   "1 seconds"    => Duration("1 seconds")
@@ -119,7 +119,7 @@ trait ForgivingDurationReads extends ImplicitDurationReads {
 }
 
 /**
- * The enumeration of the various formats for Duration.
+ * The enumeration of the various formats for [[Duration]].
  */
 object DurationFormat {
 

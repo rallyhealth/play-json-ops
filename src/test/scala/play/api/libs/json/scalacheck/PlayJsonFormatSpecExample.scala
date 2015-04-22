@@ -51,7 +51,7 @@ import play.api.libs.json.scalacheck.PlayJsonExampleGenerators._
 class PlayJsonFormatSpecExample extends PlayJsonFormatSpec[Example]
 
 /**
- * Additional FlatSpecLike tests
+ * Additional [[FlatSpecLike]] tests
  */
 class PlayJsonFormatFlatSpecExample extends PlayJsonFormatSpec[Example]
 with FlatSpecLike

@@ -31,14 +31,14 @@ class UnrecognizedTypeKey(
 })
 
 /**
- * An exception that provides better error messaging than the standard JsResultException.
+ * An exception that provides better error messaging than the standard [[JsResultException]].
  *
  * @note the constructor is private to prevent accidentally creating the exception without
  *       applying the appropriate implicit transform.
  *
  * @param json the json that was being parsed (note, this is printed verbatim, be sure to redact
  *             any sensitive information.
- * @param error the JsError encountered while parsing the json
+ * @param error the [[JsError]] encountered while parsing the json
  */
 class InvalidJson private[InvalidJson] (val expectedClass: Class[_], val json: JsValue, val error: JsError)
   extends RuntimeException(
@@ -51,10 +51,10 @@ class InvalidJson private[InvalidJson] (val expectedClass: Class[_], val json: J
 object InvalidJson {
 
   /**
-   * Builds an instance of InvalidJson applying the appropriate JsonTransform.
+   * Builds an instance of [[InvalidJson]] applying the appropriate [[JsonTransform]].
    *
    * @param rawJson the json that was being parsed (before applying the transform)
-   * @param error the JsError encountered while parsing the json
+   * @param error the [[JsError]] encountered while parsing the json
    * @tparam A the type that was attempting to be parsed
    */
   def apply[A: JsonTransform: ClassTag](rawJson: JsValue, error: JsError): InvalidJson = {

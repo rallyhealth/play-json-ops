@@ -6,12 +6,12 @@ import scala.collection.generic.CanBuildFrom
 import scala.language.higherKinds
 
 /**
- * Useful helper methods for combining and filtering JsResults.
+ * Useful helper methods for combining and filtering [[JsResult]]s.
  */
 object JsResults {
 
   /**
-   * Filter out all JsErrors and return a collection of results with the most specific type.
+   * Filter out all [[JsError]]s and return a collection of results with the most specific type.
    *
    * @param results the results to filter
    * @return a collection of results in whatever order the given collection type maintains
@@ -22,7 +22,7 @@ object JsResults {
   }
 
   /**
-   * Collects all JsErrors and appends the index of result to path of the error.
+   * Collects all [[JsError]]s and appends the index of result to path of the error.
    *
    * @param results a sequence of results
    * @return a collection of the JsError objects in the sequence that they were given
@@ -37,9 +37,9 @@ object JsResults {
   }
 
   /**
-   * Groups all JsError.errors by key and concatenates errors with the same key.
+   * Groups all [[JsError.errors]] by key and concatenates errors with the same key.
    *
-   * @see JsError.merge
+   * @see [[JsError.merge]]
    * @param errors the errors to merge
    * @return all the errors merged by key or None if the given errors are empty
    */
@@ -50,8 +50,8 @@ object JsResults {
   }
 
   /**
-   * Collects all JsErrors and appends the index of the result to the path of the error,
-   * and then flattens all the errors into a single JsError.
+   * Collects all [[JsError]]s and appends the index of the result to the path of the error,
+   * and then flattens all the errors into a single [[JsError]].
    *
    * This is effectively the same as:
    * {{{
@@ -61,7 +61,7 @@ object JsResults {
    * @note the paths of the results will never overlap, so the merge will never concatenate
    *       errors from different indexes in the sequence of results
    *
-   * @param results a sequence of JsResults
+   * @param results a sequence of [[JsResult]]s
    * @return all the errors merged
    */
   def collectFlatError(results: Seq[JsResult[_]]): Option[JsError] = {

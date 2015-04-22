@@ -11,20 +11,20 @@ import scala.reflect.runtime.universe._
  *
  * The pattern works as follows:
  *
- * 1. Create the formats of each of the specific formats using AbstractJsonOps.formatWithType
- *    and the JsonMacroOps.oformat macro.
+ * 1. Create the formats of each of the specific formats using [[AbstractJsonOps.formatWithType]]
+ *    and the [[JsonMacroOps.oformat]] macro.
  *
  *    This will append the key field (even if it isn't in the case class constructor args) to the output json.
  *
- * 2. Create an implicit TypeKeyExtractor for the generic trait or abstract class on the companion object
+ * 2. Create an implicit [[TypeKeyExtractor]] for the generic trait or abstract class on the companion object
  *    of that class.
  *
- *    This is required for the AbstractJsonOps.formatWithType to work properly and avoids repeating
+ *    This is required for the [[AbstractJsonOps.formatWithType]] to work properly and avoids repeating
  *    unnecessary boilerplate on each of the specific serializers to write out the key or the generic
  *    serializer to read the key.
  *
- * 3. Finally, define an implicit Format for your generic trait or abstract class using
- *    AbstractJsonOps.formatAbstract by providing a partial function from the extracted key (from #2)
+ * 3. Finally, define an implicit [[Format]] for your generic trait or abstract class using
+ *    [[AbstractJsonOps.formatAbstract]] by providing a partial function from the extracted key (from #2)
  *    to the specific serializer (from #1). Any unmatched keys will throw an exception.
  *   
  * Usage:
@@ -55,10 +55,10 @@ import scala.reflect.runtime.universe._
 object AbstractJsonOps extends JsonImplicits {
 
   /**
-   * Creates an object serializer OFormat that also serialized a type key field.
+   * Creates an object serializer [[OFormat]] that also serialized a type key field.
    *
-   * The type key field depends on the implicit TypeKeyExtractor provided.
-   * By serializing this type key, you can use formatAbstract on a superclass
+   * The type key field depends on the implicit [[TypeKeyExtractor]] provided.
+   * By serializing this type key, you can use [[formatAbstract]] on a superclass
    * to match and deserialize this type appropriately.
    *
    * Usage:
@@ -86,10 +86,10 @@ object AbstractJsonOps extends JsonImplicits {
   }
 
   /**
-   * Creates an object serializer play.api.libs.json.OFormat that also serialized a type key field.
+   * Creates an object serializer [[OFormat]] that also serialized a type key field.
    *
-   * The type key field depends on the implicit TypeKeyExtractor provided.
-   * By serializing this type key, you can use formatAbstract on a superclass
+   * The type key field depends on the implicit [[TypeKeyExtractor]] provided.
+   * By serializing this type key, you can use [[formatAbstract]] on a superclass
    * to match and deserialize this type appropriately.
    *
    * Usage:
@@ -115,10 +115,10 @@ object AbstractJsonOps extends JsonImplicits {
   }
 
   /**
-   * Creates a play.api.libs.json.OFormat for a generic trait or abstract class by enumerating the formats
+   * Creates an [[OFormat]] for a generic trait or abstract class by enumerating the formats
    * of all the subclasses.
    *
-   * The format will examine a key field as extracted by the TypeKeyExtractor, and then
+   * The format will examine a key field as extracted by the [[TypeKeyExtractor]], and then
    * it will use that format to finish the job of reading / writing the generic type.
    *
    * Usage:
@@ -138,10 +138,10 @@ object AbstractJsonOps extends JsonImplicits {
    * }}}
    *
    * @param choose a partial function matching a key value as extracted from the json object
-   *               to the specific OFormat that should be used to deserialize it
+   *               to the specific [[OFormat]] that should be used to deserialize it
    * @tparam T the generic type for which to create a format
-   * @return an OFormat that will deserialize the specific subclasses of T or will throw
-   *         an UnrecognizedTypeKey exception, if the key is not matched by the partial function
+   * @return an OFormat that will deserialize the specific subclasses of [[T]] or will throw
+   *         an [[UnrecognizedTypeKey]] exception, if the key is not matched by the partial function
    */
   def formatAbstract[T : TypeKeyExtractor](choose: PartialFunction[Any, OFormat[_ <: T]]): OFormat[T] =
     new OFormat[T] {
@@ -182,24 +182,24 @@ object AbstractJsonOps extends JsonImplicits {
     }
 
   /**
-   * Creates an immutable builder for creating a TypeKeyExtractor for a type.
+   * Creates an immutable builder for creating a [[TypeKeyExtractor]] for a type.
    *
    * @note This doesn't actually create the extractor. It just captures the type of trait
-   *       or abstract class, so that the TypeKeyDerivation.using method is easier to
+   *       or abstract class, so that the [[TypeKeyDerivation.using]] method is easier to
    *       define without unnecessary type arguments.
    *
-   * @tparam T the type of TypeKeyExtractor to build
-   * @return a TypeKeyDerivation for building the final extractor
+   * @tparam T the type of [[TypeKeyExtractor]] to build
+   * @return a [[TypeKeyDerivation]] for building the final extrator
    */
   def extractTypeKey[T]: TypeKeyDerivation[T] = new TypeKeyDerivation[T]
 
   class TypeKeyDerivation[T] private[AbstractJsonOps] extends JsonImplicits {
 
     /**
-     * Builds a TypeKeyExtractor for the captured type using the given function from
+     * Builds a [[TypeKeyExtractor]] for the captured type using the given function from
      * model to key value and the path in the json to that key.
      *
-     * @note this requires and implicit Format of the key value type in order to parse
+     * @note this requires and implicit [[Format]] of the key value type in order to parse
      *       the key from the given field in the json.
      *
      * @param getModelKey a function that extracts the key from the model
@@ -234,7 +234,7 @@ object AbstractJsonOps extends JsonImplicits {
  *
  * This class handles (1) and (3) and enables (2) by providing access to the key.
  *
- * In other words, this acts as a bi-directional binding between the key stored on the generic type T
+ * In other words, this acts as a bi-directional binding between the key stored on the generic type [[T]]
  * and the key stored in json. All that remains is to provide the function from key to specific serializer.
  */
 @implicitNotFound("You must define an implicit TypeKeyExtractor[${T}] in scope.  " +
@@ -243,20 +243,20 @@ object AbstractJsonOps extends JsonImplicits {
 abstract class TypeKeyExtractor[T] private[ops] {
 
   /**
-   * The runtime type of the key value after it is extracted from the JsValue.
+   * The runtime type of the key value after it is extracted from the [[JsValue]].
    *
-   * This key is used by AbstractJsonOps.formatAbstract to find the right OFormat to
+   * This key is used by [[AbstractJsonOps.formatAbstract]] to find the right [[OFormat]] to
    * use when parsing the Json as an abstract class or trait.
    */
   type Key
 
   /**
-   * The TypeTag of the Key. Used for better error messages.
+   * The [[TypeTag]] of the [[Key]]. Used for better error messages.
    */
   def keyTypeTag: TypeTag[Key]
 
   /**
-   * The Type of Key. Used for better error messages.
+   * The [[Type]] of [[Key]]. Used for better error messages.
    *
    * @note this is a val to force the evaluation of Type as early as possible since Scala's
    *       reflection API is not thread-safe. Once this is resolved, it could be calculated
@@ -265,12 +265,12 @@ abstract class TypeKeyExtractor[T] private[ops] {
   val keyType: Type
 
   /**
-   * The TypeTag of the value to Format. Used for better error messages.
+   * The [[TypeTag]] of the value to [[Format]]. Used for better error messages.
    */
   def valueTypeTag: TypeTag[T]
 
   /**
-   * The Type of the value to Format. Used for better error messages.
+   * The [[Type]] of the value to [[Format]]. Used for better error messages.
    *
    * @note this is a val to force the evaluation of Type as early as possible since Scala's
    *       reflection API is not thread-safe. Once this is resolved, it could be calculated
@@ -279,7 +279,7 @@ abstract class TypeKeyExtractor[T] private[ops] {
   val valueType: Type
 
   /**
-   * The JsPath to the key field.
+   * The [[JsPath]] to the key field.
    *
    * @note this only allows a single field to be used to determine the type. This was a
    *       design choice to avoid too much complexity in serialization logic.
@@ -287,14 +287,14 @@ abstract class TypeKeyExtractor[T] private[ops] {
   def keyPath: JsPath
 
   /**
-   * The format used to parse the key at the keyPath.
+   * The format used to parse the key at the [[keyPath]].
    *
    * @note this is protected to avoid leaking this into the public API.
    */
   protected val formatAtKeyPath: Format[Key]
 
   /**
-   * The single OFormat used for reading and writing the Key
+   * The single [[OFormat]] used for reading and writing the [[Key]]
    */
   final protected lazy val keyFormat: OFormat[Key] = keyPath format formatAtKeyPath
 
@@ -317,8 +317,8 @@ abstract class TypeKeyExtractor[T] private[ops] {
   def writeKeyToJson(key: Key): JsObject = keyFormat writes key
 
   /**
-   * Throws an UnrecognizedTypeKey exception with all the appropriate arguments.
-   * @param key the parsed key that has no corresponding OFormat for the specific
+   * Throws an [[UnrecognizedTypeKey]] exception with all the appropriate arguments.
+   * @param key the parsed key that has no corresponding [[OFormat]] for the specific
    *            type associated with it
    */
   def throwUnrecognizedTypeKey(key: Any): Nothing = {

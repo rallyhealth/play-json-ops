@@ -6,16 +6,16 @@ import play.api.libs.json._
 import scala.language.implicitConversions
 
 /**
- * Provides a Format for DateTime that always reads and writes in UTC.
+ * Provides a [[Format]] for [[DateTime]] that always reads and writes in UTC.
  *
- * @note this only applies for DateTime because org.joda.time.LocalDateTime,
- *       java.util.Date, and java.sql.Date do not carry along the time zone.
+ * @note this only applies for [[DateTime]] because [[org.joda.time.LocalDateTime]],
+ *       [[java.util.Date]], and [[java.sql.Date]] do not carry along the time zone.
  */
 trait UTCFormats {
 
   /**
-   * A good default for when you don't care about the DateTimeZone of the server
-   * that is parsing the DateTime and prefer to have all dates and times in
+   * A good default for when you don't care about the [[DateTimeZone]] of the server
+   * that is parsing the [[DateTime]] and prefer to have all dates and times in
    * Universal Coordinated Time (UTC).
    */
   implicit object ReadsDateTimeUTC extends Format[DateTime] {

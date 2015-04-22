@@ -5,10 +5,10 @@ import org.scalatest.{Suite, TestRegistration}
 import scala.testing.TestSuiteBridge
 
 /**
- * Provides the operations required for TestSuiteBridge, using the methods from ScalaTest's Suite.
+ * Provides the operations required for [[TestSuiteBridge]], using the methods from ScalaTest's [[Suite]].
  *
- * Extend this class along with your preferred flavor of Suite to fulfill the required operations
- * for TestSuiteBridge.
+ * Extend this class along with your preferred flavor of [[Suite]] to fulfill the required operations
+ * for [[TestSuiteBridge]].
  */
 trait ScalaTestBridge extends TestSuiteBridge with Suite with TestRegistration {
 

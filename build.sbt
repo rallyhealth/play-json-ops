@@ -3,11 +3,11 @@ name := "play-json-ops"
 
 organization := "me.jeffmay"
 
-version := "0.2.4"
+version := "1.0.0"
 
-crossScalaVersions := Seq("2.10.4", "2.11.6")
+crossScalaVersions := Seq("2.11.6", "2.10.4")
 
-scalacOptions := {
+scalacOptions ++= {
   // the deprecation:false flag is only supported by scala >= 2.11.3, but needed for scala >= 2.11.0 to avoid warnings
   CrossVersion.partialVersion(scalaVersion.value) match {
     case Some((2, scalaMinor)) if scalaMinor >= 11 =>
@@ -17,11 +17,10 @@ scalacOptions := {
       // For scala versions 2.10.x
       Seq("-Xfatal-warnings")
   }
-}
-
-resolvers := Seq(
-  sbt.Resolver.jcenterRepo,
-  sbt.Resolver.bintrayRepo("jeffmay", "typesafety")
+} ++ Seq(
+  "-feature",
+  "-Ywarn-dead-code",
+  "-encoding", "UTF-8"
 )
 
 libraryDependencies := Seq(
@@ -30,8 +29,11 @@ libraryDependencies := Seq(
   // when extending a generic test class for PlaySerializationTests
   "org.scalacheck" %% "scalacheck" % "1.12.2",
   "org.scalatest" %% "scalatest" % "2.2.4",
-  "me.jeffmay" %% "scalacheck-ops" % "0.1.1"
+  "me.jeffmay" %% "scalacheck-ops" % "1.0.0"
 ).map(_.withSources())
+
+// disable compilation of ScalaDocs, since this always breaks on links
+sources in(Compile, doc) := Seq.empty
 
 bintraySettings ++ bintrayPublishSettings
 
