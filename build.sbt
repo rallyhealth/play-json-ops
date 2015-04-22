@@ -3,6 +3,8 @@ name := "play-json-ops"
 
 organization := "me.jeffmay"
 
+organizationName := "Jeff May"
+
 version := "1.0.0"
 
 crossScalaVersions := Seq("2.11.6", "2.10.4")
@@ -15,7 +17,7 @@ scalacOptions ++= {
       Seq("-Xfatal-warnings", "-deprecation:false")
     case Some((2, scalaMinor)) if scalaMinor < 11 =>
       // For scala versions 2.10.x
-      Seq("-Xfatal-warnings")
+      Seq("-Xfatal-warnings", "-deprecation")
   }
 } ++ Seq(
   "-feature",
@@ -34,6 +36,9 @@ libraryDependencies := Seq(
 
 // disable compilation of ScalaDocs, since this always breaks on links
 sources in(Compile, doc) := Seq.empty
+
+// disable publishing empty ScalaDocs
+publishArtifact in (Compile, packageDoc) := false
 
 bintraySettings ++ bintrayPublishSettings
 
