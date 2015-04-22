@@ -6,7 +6,7 @@ import play.api.libs.json._
 import scala.reflect.ClassTag
 
 /**
- * An implicit mechanism for transforming [[JsValue]]s before they are thrown in exceptions or printed
+ * An implicit mechanism for transforming JsValues before they are thrown in exceptions or printed
  * to the logs.
  *
  * This is the ideal way to redact data from Json, when you know the starting type or expected type

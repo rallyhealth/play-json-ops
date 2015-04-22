@@ -9,18 +9,18 @@ import scala.language.implicitConversions
 trait JsValueGenerators {
 
   /**
-   * The maximum number of fields of a [[JsObject]] or elements of a [[JsArray]] to construct when
-   * generating one of these nested [[JsValue]]s.
+   * The maximum number of fields of a JsObject or elements of a JsArray to construct when
+   * generating one of these nested JsValues.
    */
   def defaultMaxWidth: Width = Width(2)
 
   /**
-   * The maximum number of levels deep where nested values ([[JsObject]]s or [[JsArray]]s) can be generated.
+   * The maximum number of levels deep where nested values (JsObjects or JsArrays) can be generated.
    *
    * In other words:
-   * - A depth of 0 generates only primitive [[JsValue]]s
-   * - A depth of 1 generates any type of [[JsValue]] where all nested values contain only primitive [[JsValue]]s.
-   * - A depth of n generates any type of [[JsValue]] where all nested values contain [[JsValue]]s with a depth of n - 1
+   * - A depth of 0 generates only primitive JsValues
+   * - A depth of 1 generates any type of JsValue where all nested values contain only primitive JsValues.
+   * - A depth of n generates any type of JsValue where all nested values contain JsValues with a depth of n - 1
    */
   def defaultMaxDepth: Depth = Depth(2)
 
@@ -49,9 +49,9 @@ trait JsValueGenerators {
   }
 
   /**
-   * Generates non-nested [[JsValue]]s (ie. not [[JsArray]] or [[JsObject]]).
+   * Generates non-nested JsValues (ie. not JsArray or JsObject).
    *
-   * @note this will produce [[JsUndefined]]
+   * @note this will produce JsUndefined
    */
   def genJsPrimitive: Gen[JsValue] = {
     Gen.oneOf(
@@ -64,10 +64,10 @@ trait JsValueGenerators {
   }
 
   /**
-   * Generates a primitive or nested [[JsValue]] up to the specified depth and width
+   * Generates a primitive or nested JsValue up to the specified depth and width
    *
-   * @param maxDepth see [[defaultMaxDepth]] (cannot be less than 0)
-   * @param maxWidth see [[defaultMaxWidth]] (cannot be less than 0)
+   * @param maxDepth see defaultMaxDepth (cannot be less than 0)
+   * @param maxWidth see defaultMaxWidth (cannot be less than 0)
    */
   def genJsValue(implicit maxDepth: Depth = defaultMaxDepth, maxWidth: Width = defaultMaxWidth): Gen[JsValue] = {
     if (maxDepth === 0) genJsPrimitive
@@ -82,10 +82,10 @@ trait JsValueGenerators {
   /**
    * Generates a nested array at the specified depth and width.
    *
-   * @note the arrays may contain mixed type values at different depths, but never deeper than the [[defaultMaxDepth]].
+   * @note the arrays may contain mixed type values at different depths, but never deeper than the defaultMaxDepth.
    *
-   * @param maxDepth see [[defaultMaxDepth]] (cannot be less than 1)
-   * @param maxWidth see [[defaultMaxWidth]] (cannot be less than 1)
+   * @param maxDepth see defaultMaxDepth (cannot be less than 1)
+   * @param maxWidth see defaultMaxWidth (cannot be less than 1)
    */
   def genJsArray(implicit maxDepth: Depth = defaultMaxDepth, maxWidth: Width = defaultMaxWidth): Gen[JsArray] =
     Gen.listOfN(maxWidth, genJsValue(maxDepth - 1, maxWidth)) map { JsArray(_) }
@@ -104,8 +104,8 @@ trait JsValueGenerators {
   /**
    * Generates a nested array at the specified depth and width.
    *
-   * @param maxDepth see [[defaultMaxDepth]] (cannot be less than 1)
-   * @param maxWidth see [[defaultMaxWidth]] (cannot be less than 1)
+   * @param maxDepth see defaultMaxDepth (cannot be less than 1)
+   * @param maxWidth see defaultMaxWidth (cannot be less than 1)
    */
   def genJsObject(implicit maxDepth: Depth = defaultMaxDepth, maxWidth: Width = defaultMaxWidth): Gen[JsObject] = {
     for {

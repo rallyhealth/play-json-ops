@@ -5,17 +5,17 @@ import scala.language.implicitConversions
 import scala.util.{Failure, Success, Try}
 
 /**
- * Provides useful operations on generic [[Duration]]s.
+ * Provides useful operations on generic Durations.
  */
 object DurationOps {
 
   /**
-   * This duplicates the logic from [[Duration.apply(s: String)]] but does not give up any precision.
+   * This duplicates the logic from Duration.apply(s: String) but does not give up any precision.
    *
-   * @note calling [[Duration.toString]] on x should always yield Some(x) with the same length and duration.
+   * @note calling Duration.toString on x should always yield Some(x) with the same length and duration.
    *
-   * @param durationString a string to parse a [[Duration]] from (typically from Duration.toString)
-   * @return the first [[Duration]] value parsed from a given string
+   * @param durationString a string to parse a Duration from (typically from Duration.toString)
+   * @return the first Duration value parsed from a given string
    */
   def parseLossless(durationString: String): Try[Duration] = {
     durationString.dropWhile(_.isWhitespace).toLowerCase match {
@@ -40,15 +40,15 @@ object DurationOps {
   }
 
   /**
-   * This duplicates the logic from [[Duration.apply(s: String)]] but only parses the unit.
+   * This duplicates the logic from Duration.apply<String> but only parses the unit.
    *
-   * Grabs the first [[TimeUnit]] from a string, but only compares whole words as separated
+   * Grabs the first TimeUnit from a string, but only compares whole words as separated
    * by whitespace, numbers, or punctuation.
    *
-   * @note calling [[FiniteDuration.toString]] on x should always return a Some(x.unit)
+   * @note calling FiniteDuration.toString on x should always return a Some(x.unit)
    *
-   * @param durationString a string to parse a [[TimeUnit]] from (typically from Duration.toString)
-   * @return the first [[TimeUnit]] value parsed from a given string
+   * @param durationString a string to parse a TimeUnit from (typically from Duration.toString)
+   * @return the first TimeUnit value parsed from a given string
    */
   def parseUnit(durationString: String): Option[TimeUnit] = {
     val trimmed: String = durationString dropWhile (!_.isLetter)
@@ -77,15 +77,15 @@ object DurationOps {
 }
 
 /**
- * Provides useful operations on [[FiniteDuration]]s.
+ * Provides useful operations on FiniteDurations.
  */
 object FiniteDurationOps {
 
   /**
-   * Same as [[Duration.toUnit]] except avoids loss of precision by not converting to Double first.
+   * Same as Duration.toUnit except avoids loss of precision by not converting to Double first.
    *
    * @param duration the duration to convert
-   * @param unit the [[TimeUnit]] to convert it to
+   * @param unit the TimeUnit to convert it to
    */
   def convertToUnitPrecisely(duration: FiniteDuration, unit: TimeUnit): FiniteDuration = {
     val magnitude = unit match {
@@ -102,28 +102,28 @@ object FiniteDurationOps {
 }
 
 /**
- * Provides additional operations on [[FiniteDuration]] with no runtime allocation overhead.
+ * Provides additional operations on FiniteDuration with no runtime allocation overhead.
  */
 class FiniteDurationOps(val duration: FiniteDuration) extends AnyVal {
 
   /**
-   * Drops any extra precision that would be unrepresentable in the current Duration's [[TimeUnit]].
+   * Drops any extra precision that would be unrepresentable in the current Duration's TimeUnit.
    */
   def dropInsignificantDigits: FiniteDuration = toUnitPrecise(duration.unit)
 
   /**
-   * Converts a [[FiniteDuration]] to the provided unit without any loss of precision.
+   * Converts a FiniteDuration to the provided unit without any loss of precision.
    *
-   * @note this method has no affect on [[Duration.Infinite]] values
+   * @note this method has no affect on Duration.Infinite values
    *
-   * @param unit the [[TimeUnit]], such as [[DAYS]], [[HOURS]], etc
-   * @return a new [[FiniteDuration]] with the provided unit or the given [[Duration.Infinite]]
+   * @param unit the TimeUnit, such as DAYS, HOURS, etc
+   * @return a new FiniteDuration with the provided unit or the given Duration.Infinite
    */
   def toUnitPrecise(unit: TimeUnit): FiniteDuration = FiniteDurationOps.convertToUnitPrecisely(duration, unit)
 }
 
 /**
- * Extend this trait to get additional operations on [[FiniteDuration]]s.
+ * Extend this trait to get additional operations on FiniteDurations.
  *
  * These are also made available by adding `import scala.concurrent.duration.ops._`
  */

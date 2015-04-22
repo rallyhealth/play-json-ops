@@ -67,9 +67,9 @@ trait SerializationTests[T] extends GenericTestSuite {
   }
 
   /**
-   * Uses the provided [[shrink]] to shrink a failing example to its simplest form that still fails the test.
+   * Uses the provided shrink to shrink a failing example to its simplest form that still fails the test.
    *
-   * @note you can override this method to just call [[assertSame]] if you don't want to apply the shrink.
+   * @note you can override this method to just call assertSame if you don't want to apply the shrink.
    */
   protected def assertSameWithShrink(expected: T, actual: T, serialized: Serialized): Unit = {
     try assertSame(expected, actual, serialized)

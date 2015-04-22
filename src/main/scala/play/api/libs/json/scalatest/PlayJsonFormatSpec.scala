@@ -10,12 +10,12 @@ import scala.reflect.ClassTag
 import scala.testing.scalatest.ScalaTestBridge
 
 /**
- * Extend this for free serialization tests given a [[Format]] and some example values.
+ * Extend this for free serialization tests given a Format and some example values.
  *
- * @note this class extends from [[FlatSpecLike]], so any additional tests you provide must be
+ * @note this class extends from FlatSpecLike, so any additional tests you provide must be
  *       in that flavor of testing.
  *
- * Import an [[Arbitrary]] of your model to have even better test coverage, as ScalaCheck will
+ * Import an Arbitrary of your model to have even better test coverage, as ScalaCheck will
  * trace the edge cases of serialization for you.
  */
 class PlayJsonFormatSpec[T](examples: Seq[T])(implicit playFormat: Format[T], clsTag: ClassTag[T], shrink: Shrink[T])

@@ -21,7 +21,7 @@ trait DurationGenerators {
   }
 
   /**
-   * [[Duration]] doesn't support unsigned operations to allow unary - to be symmetric
+   * Duration doesn't support unsigned operations to allow unary - to be symmetric
    */
   private val minNanos = Long.MinValue + 1
   private val maxNanos = Long.MaxValue

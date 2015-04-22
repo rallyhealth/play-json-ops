@@ -3,7 +3,7 @@ name := "play-json-ops"
 
 organization := "me.jeffmay"
 
-version := "0.2.2"
+version := "0.2.4"
 
 crossScalaVersions := Seq("2.10.4", "2.11.6")
 
@@ -19,14 +19,20 @@ scalacOptions := {
   }
 }
 
+resolvers := Seq(
+  sbt.Resolver.jcenterRepo,
+  sbt.Resolver.bintrayRepo("jeffmay", "typesafety")
+)
+
 libraryDependencies := Seq(
   "com.typesafe.play" %% "play-json" % "2.3.7",
   // these are not limited to the test scope since there is library code that enables free unit tests
   // when extending a generic test class for PlaySerializationTests
   "org.scalacheck" %% "scalacheck" % "1.12.2",
-  "org.scalatest" %% "scalatest" % "2.2.4"
+  "org.scalatest" %% "scalatest" % "2.2.4",
+  "me.jeffmay" %% "scalacheck-ops" % "0.1.1"
 ).map(_.withSources())
 
-lazy val scalaCheckOps = RootProject(uri("git://github.com/jeffmay/scalacheck-ops.git#v0.1.0"))
+bintraySettings ++ bintrayPublishSettings
 
-lazy val jsonOps = project in file(".") dependsOn scalaCheckOps
+licenses += ("Apache-2.0", url("http://opensource.org/licenses/apache-2.0"))

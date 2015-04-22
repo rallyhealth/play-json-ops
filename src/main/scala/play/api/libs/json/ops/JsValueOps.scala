@@ -5,7 +5,7 @@ import play.api.libs.json.{JsError, JsSuccess, Reads, JsValue}
 import scala.reflect.ClassTag
 
 /**
- * Provides helper methods on [[JsValue]].
+ * Provides helper methods on JsValue.
  *
  * @param json the original json value
  */
@@ -25,9 +25,9 @@ class JsValueOps(val json: JsValue) extends AnyVal {
   }
 
   /**
-   * Adds another way to call [[JsValue.transform]], but based on type using the implicit [[JsonTransform]].
+   * Adds another way to call JsValue.transform, but based on type using the implicit JsonTransform.
    *
-   * Uses the implicit [[JsonTransform]] for this type to redact or alter the resulting [[JsValue]].
+   * Uses the implicit JsonTransform for this type to redact or alter the resulting JsValue.
    *
    * @tparam A the type of value to transform this json for
    * @return a JsValue that has been altered based on the implicit transformer

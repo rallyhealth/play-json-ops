@@ -6,7 +6,7 @@ package scala.testing
  * This allows libraries to provide generic test suites that can be extended for free automated tests.
  * Yes, FREE! This allows you to inherit automated tests, and get them... automatically.
  *
- * There is currently only one subclass for this [[scala.testing.scalatest.ScalaTestBridge]]
+ * There is currently only one subclass for this scala.testing.scalatest.ScalaTestBridge
  */
 trait TestSuiteBridge extends GenericTestSuite {
 
