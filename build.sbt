@@ -1,14 +1,15 @@
 
-lazy val common = Seq(
-
-  organization := "me.jeffmay",
-
-  organizationName := "Jeff May",
-
-  // this version is common to all projects in this build
+lazy val commonRootSettings = Seq(
   version := "1.1.0",
-
+  scalaVersion := "2.11.6",
   crossScalaVersions := Seq("2.11.6", "2.10.4"),
+  organization := "me.jeffmay",
+  organizationName := "Jeff May"
+) ++ bintraySettings ++ bintrayPublishSettings
+
+commonRootSettings
+
+lazy val common = commonRootSettings ++ Seq(
 
   scalacOptions ++= {
     // the deprecation:false flag is only supported by scala >= 2.11.3, but needed for scala >= 2.11.0 to avoid warnings
@@ -26,6 +27,8 @@ lazy val common = Seq(
     "-encoding", "UTF-8"
   ),
 
+  ivyScala := ivyScala.value map { _.copy(overrideScalaVersion = true) },
+
   // don't publish the test code as an artifact anymore, since we have playJsonTests
   publishArtifact in Test := false,
 
@@ -37,15 +40,15 @@ lazy val common = Seq(
 
   licenses += ("Apache-2.0", url("http://opensource.org/licenses/apache-2.0"))
 
-) ++ bintraySettings ++ bintrayPublishSettings
+)
 
 lazy val playJsonOps = project in file("playJsonOps") settings(common: _*) settings (
 
   name := "play-json-ops",
 
-  libraryDependencies := Seq(
+  libraryDependencies ++= Seq(
     "com.typesafe.play" %% "play-json" % "2.3.7"
-  ).map(_.withSources())
+  )
 
 ) dependsOn (
   playJsonTests % "compile->test"
@@ -55,12 +58,12 @@ lazy val playJsonTests = project in file("playJsonTests") settings(common: _*) s
 
   name := "play-json-tests",
 
-  libraryDependencies := Seq(
+  libraryDependencies ++= Seq(
     "com.typesafe.play" %% "play-json" % "2.3.7",
     "org.scalacheck" %% "scalacheck" % "1.12.2",
     "org.scalatest" %% "scalatest" % "2.2.4",
     "me.jeffmay" %% "scalacheck-ops" % "1.0.0"
-  ).map(_.withSources())
+  )
 )
 
 // don't publish the surrounding multi-project build
