@@ -14,9 +14,18 @@ trait ScalaTestBridge extends TestSuiteBridge with Suite with TestRegistration {
 
   override protected def assertEqual[T](left: T, right: T): Unit = assert(left == right)
 
-  override def fail(reason: String, cause: Option[Throwable]): Nothing = cause match {
-    case Some(ex) => super[Suite].fail(reason, ex)
-    case None     => super[Suite].fail(reason)
+  override def fail(): Nothing                                  = super[TestSuiteBridge].fail()
+  override def fail(message: String): Nothing                   = super[TestSuiteBridge].fail(message)
+  override def fail(message: String, cause: Throwable): Nothing = super[TestSuiteBridge].fail(message, cause)
+  override def fail(cause: Throwable): Nothing                  = super[TestSuiteBridge].fail(cause)
+
+  override protected def doFail(optReason: Option[String], optCause: Option[Throwable]): Nothing = {
+    (optReason, optCause) match {
+      case (Some(reason), Some(cause)) => super[Suite].fail(reason, cause)
+      case (Some(reason), None)        => super[Suite].fail(reason)
+      case (None, Some(cause))         => super[Suite].fail(cause)
+      case (None, None)                => super[Suite].fail()
+    }
   }
 
   override protected[testing] def registerTests(tests: Map[String, () => Unit]): Unit = {

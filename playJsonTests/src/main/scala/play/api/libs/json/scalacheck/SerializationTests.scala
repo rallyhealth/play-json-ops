@@ -54,14 +54,14 @@ trait SerializationTests[T] extends GenericTestSuite {
   protected def assertSame(expected: T, actual: T, serialized: Serialized): Unit = {
     try assertPostSerializationEquality(expected, actual)
     catch {
-      case NonFatal(ex) =>
+      case NonFatal(exception) =>
         val prettyOutput = prettyPrint(serialized)
         fail(
           s"The expected and actual values are not equal.\n\n" +
           s"expected:\n$expected\n\n" +
           s"actual:\n$actual\n\n" +
           s"json:\n$prettyOutput\n\n",
-          Some(ex)
+          exception
         )
     }
   }

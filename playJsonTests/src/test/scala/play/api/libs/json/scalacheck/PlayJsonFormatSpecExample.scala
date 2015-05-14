@@ -7,6 +7,7 @@ import org.scalatest.exceptions.TestFailedException
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
 import org.scalatest.{FlatSpecLike, Matchers}
 import play.api.libs.json.Json
+import play.api.libs.json.scalacheck.PlayJsonFormatFlatSpecExample.SampleException
 import play.api.libs.json.scalatest.PlayJsonFormatSpec
 
 import scala.language.implicitConversions
@@ -59,10 +60,46 @@ with Matchers
 with ScalaCheckImplicits
 with GeneratorDrivenPropertyChecks {
 
+  var lastFailReason: Option[String] = None
+  var lastFailCause: Option[Throwable] = None
+  override def doFail(reason: Option[String], cause: Option[Throwable]): Nothing = {
+    lastFailReason = reason
+    lastFailCause = cause
+    super.doFail(reason, cause)
+  }
+
   "PlayJsonFormatFlatSpecExample" should "allow adding additional specs" in {
     forAll() { (example: Example) =>
       assert(Json.toJson(example).as[Example] == example)
     }
+  }
+
+  it should "call the doFail method when providing a reason" in {
+    lastFailReason = None
+    val reason = "reason"
+    a[TestFailedException] shouldBe thrownBy {
+      fail(reason)
+    }
+    assert(lastFailReason == Some(reason))
+  }
+
+  it should "call the doFail method when providing a cause" in {
+    lastFailCause = None
+    a[TestFailedException] shouldBe thrownBy {
+      fail(SampleException)
+    }
+    assert(lastFailCause == Some(SampleException))
+  }
+
+  it should "call the doFail method when providing both a reason and a cause" in {
+    lastFailCause = None
+    lastFailReason = None
+    val reason = "reason"
+    a[TestFailedException] shouldBe thrownBy {
+      fail(reason, SampleException)
+    }
+    assert(lastFailCause == Some(SampleException))
+    assert(lastFailReason == Some(reason))
   }
 
   "PlayJsonFormatFlatSpecExample.shrink" should "use the implicit shrink" in {
@@ -73,4 +110,9 @@ with GeneratorDrivenPropertyChecks {
     }
     assert(ex.getSuppressed.head.getMessage contains "shrink")
   }
+}
+
+object PlayJsonFormatFlatSpecExample {
+
+  case object SampleException extends Throwable
 }
