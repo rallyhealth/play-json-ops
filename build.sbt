@@ -27,6 +27,11 @@ lazy val common = commonRootSettings ++ Seq(
     "-encoding", "UTF-8"
   ),
 
+  resolvers ++= Seq(
+    "Typesafe Releases" at "http://repo.typesafe.com/typesafe/releases/",
+    "jeffmay at bintray" at "https://dl.bintray.com/jeffmay/maven"
+  ),
+
   ivyScala := ivyScala.value map { _.copy(overrideScalaVersion = true) },
 
   // don't publish the test code as an artifact anymore, since we have playJsonTests
