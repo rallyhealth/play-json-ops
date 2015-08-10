@@ -49,15 +49,31 @@ with JsValueGenerators {
     localScope.verifyImplicitOverrides()
   }
 
-  "genJsPrimitive" should behave like aPrimitiveJsValue(genJsPrimitive)
+  "genJsPrimitive" should behave like aPrimitiveJsValue(genJsPrimitive())
+  it should behave like itHasSymmetricJsonSerialization(genJsPrimitive(includeUndefined = false))
 
   "genJsValue with a depth of 0" should behave like aPrimitiveJsValue(genJsValue(Depth(0)))
 
   "genJsValue" should behave like aJsValueContainer(genJsValue(_, _))
+  it should behave like itHasSymmetricJsonSerialization(genJsValue())
 
   "genJsArray" should behave like aJsValueContainer(genJsArray(_, _))
+  it should behave like itHasSymmetricJsonSerialization(genJsArray())
 
   "genJsObject" should behave like aJsValueContainer(genJsObject(_, _))
+  it should behave like itHasSymmetricJsonSerialization(genJsObject())
+
+  "genSafeBigDecimal" should "generate BigDecimals greater than Double.MaxValue " in {
+    val biggerExists = Prop.exists((big: BigDecimal) => big > Double.MaxValue)
+    val biggerThanDouble = biggerExists(Gen.Parameters.default)
+    assert(!biggerThanDouble.failure)
+  }
+
+  it should "generate BigDecimals smaller than Double.MinValue" in {
+    val smallerExists = Prop.exists((big: BigDecimal) => big < Double.MinValue)
+    val smallerThanDouble = smallerExists(Gen.Parameters.default)
+    assert(!smallerThanDouble.failure)
+  }
 
   def aCount(count: Int => Counted): Unit = {
     it should "throw an exception on negative numbers" in {
@@ -103,6 +119,16 @@ with JsValueGenerators {
     it should "never generate more depth than the specified depth" in {
       forAll() { (json: JsValue) =>
         assert(maxPathDepth(Seq(json)) <= maxDepth)
+      }
+    }
+  }
+
+  def itHasSymmetricJsonSerialization(genJs: Gen[_ <: JsValue]): Unit = {
+    it should "always generate values that can be serialized and deserialized to and from a string" in {
+      forAll() { (json: JsValue) =>
+        val serialized = Json.stringify(json)
+        val deserialized = Json.parse(serialized)
+        assert(json === deserialized)
       }
     }
   }
