@@ -1,3 +1,22 @@
+<a href='https://travis-ci.org/jeffmay/play-json-ops'>
+  <img src='https://travis-ci.org/jeffmay/play-json-ops.svg' alt='Build Status' />
+</a>
+<a href='https://coveralls.io/github/jeffmay/play-json-ops?branch=master'>
+  <img src='https://coveralls.io/repos/jeffmay/play-json-ops/badge.svg?branch=master&service=github' alt='Coverage Status' />
+</a>
+<table>
+  <tr>
+    <th>play-json-ops</th>
+  </tr>
+  <tr>
+    <td>
+      <a href='https://bintray.com/jeffmay/maven/play-json-ops/_latestVersion'>
+        <img src='https://api.bintray.com/packages/jeffmay/maven/play-json-ops/images/download.svg'>
+      </a>
+    </td>
+  </tr>
+</table>
+
 # Play Json Ops
 
 Augments the [Play Json library](https://www.playframework.com/documentation/2.3.x/ScalaJson) with some helpful
