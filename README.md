@@ -7,11 +7,17 @@
 <table>
   <tr>
     <th>play-json-ops</th>
+    <th>play-json-tests</th>
   </tr>
   <tr>
     <td>
       <a href='https://bintray.com/jeffmay/maven/play-json-ops/_latestVersion'>
         <img src='https://api.bintray.com/packages/jeffmay/maven/play-json-ops/images/download.svg'>
+      </a>
+    </td>
+    <td>
+      <a href='https://bintray.com/jeffmay/maven/play-json-tests/_latestVersion'>
+        <img src='https://api.bintray.com/packages/jeffmay/maven/play-json-tests/images/download.svg'>
       </a>
     </td>
   </tr>
