@@ -56,7 +56,7 @@ lazy val playJsonOps = project in file("playJsonOps") settings(common: _*) setti
   )
 
 ) dependsOn (
-  playJsonTests
+  playJsonTests % "test"
 )
 
 lazy val playJsonTests = project in file("playJsonTests") settings(common: _*) settings (
