@@ -21,7 +21,7 @@ class JsValueOps(val json: JsValue) extends AnyVal {
    */
   def asOrThrow[A: Reads: ClassTag: JsonTransform]: A = json.validate[A] match {
     case JsSuccess(a, _) => a
-    case err: JsError => throw InvalidJson[A](json, err)
+    case err: JsError => throw InvalidJsonException[A](json, err)
   }
 
   /**
