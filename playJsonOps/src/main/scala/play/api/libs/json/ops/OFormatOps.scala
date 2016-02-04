@@ -2,7 +2,7 @@ package play.api.libs.json.ops
 
 import play.api.libs.json._
 
-object OFormatOps {
+object OFormatOps extends OFormatPure {
 
   def of[T: OFormat]: OFormat[T] = implicitly
 }
