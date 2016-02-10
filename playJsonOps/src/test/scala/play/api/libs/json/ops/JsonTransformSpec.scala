@@ -46,8 +46,9 @@ with JsonImplicits {
 //          println(Json.prettyPrint(redacted))
 //        }
         for (path <- redactedPaths) {
-          val selected = path.asSingleJson(redacted)
-          assert(selected == JsonTransform.RedactedValue)
+          assertResult(JsonTransform.RedactedValue) {
+            path.asSingleJson(redacted)
+          }
         }
       }
     }

@@ -27,15 +27,15 @@ private[ops] trait AssertDurationEquality[T <: Duration] extends PlayJsonFormatS
   override protected def assertPostSerializationEquality(expected: T, actual: T): Unit = {
     if (expected.isFinite()) {
       assert(actual.isFinite(), s"$actual is not finite and cannot be equal to $expected")
-      assert(expected.unit == actual.unit)
-      assert(expected.length == actual.length)
+      assertResult(expected.unit)(actual.unit)
+      assertResult(expected.length)(actual.length)
     }
     else if (expected eq Duration.Undefined) {
-      assert(actual eq Duration.Undefined)
+      assertResult(Duration.Undefined)(actual)
     }
     else {
       assert(!actual.isFinite(), s"$actual is finite and cannot be equal to $expected")
-      assert(expected == actual)
+      assertResult(expected)(actual)
     }
   }
 }

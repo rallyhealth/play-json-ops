@@ -1,6 +1,7 @@
 package play.api.libs.json.scalacheck
 
 import org.scalacheck.{Gen, Prop}
+import org.scalactic.TypeCheckedTripleEquals
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
 import org.scalatest.{Assertions, FlatSpec, Matchers}
 import play.api.libs.json._
@@ -84,7 +85,9 @@ with JsValueGenerators {
 
     it should "be identical to zero or positive" in {
       forAll(Gen.posNum[Int]) { n =>
-        assert(count(n) === n)
+        assertResult(n) {
+          count(n).count
+        }
       }
     }
   }
@@ -92,7 +95,9 @@ with JsValueGenerators {
   def aPrimitiveJsValue(genJs: Gen[_ <: JsValue]): Unit = {
     it should "only contain primitive (non-nested) values" in {
       forAll(genJs) { json =>
-        assert(maxPathDepth(Seq(json)) === 0)
+        assertResult(0) {
+          maxPathDepth(Seq(json)).count
+        }
       }
     }
   }
@@ -110,7 +115,7 @@ with JsValueGenerators {
         js <- genJs(Depth(maxDepth), maxWidth)
       } yield (maxDepth, js)
       forAll(genJsWithDepth) { case (max, json) =>
-        maxPathDepth(Seq(json)) <= max
+        assert(maxPathDepth(Seq(json)) <= max)
       }
     }
   }
@@ -126,9 +131,11 @@ with JsValueGenerators {
   def itHasSymmetricJsonSerialization(genJs: Gen[_ <: JsValue]): Unit = {
     it should "always generate values that can be serialized and deserialized to and from a string" in {
       forAll() { (json: JsValue) =>
-        val serialized = Json.stringify(json)
-        val deserialized = Json.parse(serialized)
-        assert(json === deserialized)
+        assertResult(json) {
+          val serialized = Json.stringify(json)
+          val deserialized = Json.parse(serialized)
+          deserialized
+        }
       }
     }
   }
@@ -136,11 +143,12 @@ with JsValueGenerators {
 
 class JsValueGeneratorsSubclass(implicit localDepth: Depth, localWidth: Width)
   extends JsValueGenerators
-  with Assertions {
+  with Assertions
+  with TypeCheckedTripleEquals {
 
   def doVerifyImplicitOverrides(implicit depth: Depth, width: Width): Unit = {
-    assert(depth == localDepth)
-    assert(width == localWidth)
+    assume(depth === localDepth)
+    assume(width === localWidth)
   }
 
   def verifyImplicitOverrides(): Unit = doVerifyImplicitOverrides

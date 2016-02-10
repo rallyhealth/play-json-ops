@@ -24,7 +24,9 @@ with JsonImplicits {
     val troll = JsString("trolled :)")
     implicit val transform = JsonTransform[Troll](_ => troll)
     forAll() { (json: JsValue) =>
-      assert(json.transformAs[Troll] == troll)
+      assertResult(troll) {
+        json.transformAs[Troll]
+      }
     }
   }
 
@@ -33,8 +35,9 @@ with JsonImplicits {
   it should "convert the json as normal" in {
     implicit val transform = JsonTransform.redactPaths[Troll](Seq(__ \ "value"))
     forAll() { (troll: Troll) =>
-      val parsed = Json.toJson(troll).asOrThrow[Troll]
-      assert(parsed == troll)
+      assertResult(troll) {
+        Json.toJson(troll).asOrThrow[Troll]
+      }
     }
   }
 
@@ -44,7 +47,9 @@ with JsonImplicits {
       val ex = intercept[InvalidJsonException] {
         json.asOrThrow[Troll]
       }
-      assert(ex.json \ "value" == JsonTransform.RedactedValue)
+      assertResult(JsonTransform.RedactedValue) {
+        ex.json \ "value"
+      }
     }
   }
 }

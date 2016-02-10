@@ -8,13 +8,15 @@ class OFormatOpsSpec extends WordSpec {
   "OFormat.pure" should {
 
     "read the expected object" in {
-      val example = JsBoolean(false).as[PureObjectExample.type] // any value will read PureExample
-      assert(example === PureObjectExample)
+      assertResult(PureObjectExample) {
+        JsBoolean(false).as[PureObjectExample.type] // any value will read PureExample
+      }
     }
 
     "write the expected json object" in {
-      val json = Json.toJson(PureObjectExample)
-      assert(json === PureObjectExample.alwaysWritenAs)
+      assertResult(PureObjectExample.alwaysWritenAs) {
+        Json.toJson(PureObjectExample)
+      }
     }
   }
 
