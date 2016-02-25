@@ -1,5 +1,6 @@
 package play.api.libs.json.ops
 
+import play.api.data.validation.ValidationError
 import play.api.libs.json._
 
 import scala.annotation.implicitNotFound
@@ -26,13 +27,13 @@ import scala.reflect.runtime.universe._
  * 3. Finally, define an implicit [[Format]] for your generic trait or abstract class using
  *    [[AbstractJsonOps.formatAbstract]] by providing a partial function from the extracted key (from #2)
  *    to the specific serializer (from #1). Any unmatched keys will throw an exception.
- *   
+ *
  * Usage:
  * {{{
  *   trait Generic {
  *     def key: String
  *   }
- *   
+ *
  *   object Generic extends JsonImplicits {
  *     implicit val extractor = Json.extractTypeKey[Generic].using(_.key, __ \ "key")
  *
@@ -52,7 +53,7 @@ import scala.reflect.runtime.universe._
  *   }
  * }}}
  */
-object AbstractJsonOps extends JsonImplicits {
+object AbstractJsonOps {
 
   /**
    * Creates an object serializer [[OFormat]] that also serialized a type key field.
@@ -73,16 +74,27 @@ object AbstractJsonOps extends JsonImplicits {
    * @tparam Abstract the abstract type for looking up the [[TypeKeyExtractor]]
    * @return an OFormat that serializes the concrete type with a given type key extractor.
    */
+  @deprecated("Use formatWithTypeKeyOf[Generic].addedTo(...) to build the OFormat each concrete subclass of the trait.", "1.2.3")
   def formatWithType[Concrete, Abstract >: Concrete : TypeKeyExtractor](objFormat: OFormat[Concrete]): OFormat[Concrete] = {
     new OFormat[Concrete] {
       private val extractor: TypeKeyExtractor[Abstract] = implicitly
       override def reads(json: JsValue): JsResult[Concrete] = objFormat.reads(json)
       override def writes(model: Concrete): JsObject = {
         val obj = objFormat.writes(model)
-        val key = extractor.writeKeyToJson(extractor.readKeyFromModel(model))
+        val key = extractor.writeKeyToJson(model)
         obj ++ key
       }
     }
+  }
+
+  /**
+   * Builds an object format that writes the type key to the json, so that it can be read in
+   * by the [[OFormat]] built from the [[formatAbstract]] method.
+   *
+   * @tparam Abstract the abstract type for looking up the [[TypeKeyExtractor]]
+   */
+  def formatWithTypeKeyOf[Abstract: TypeKeyExtractor]: FormatWithTypeKeyDerivation[Abstract] = {
+    new FormatWithTypeKeyDerivation[Abstract]
   }
 
   /**
@@ -108,8 +120,59 @@ object AbstractJsonOps extends JsonImplicits {
       override def reads(json: JsValue): JsResult[Concrete] = objFormat.reads(json)
       override def writes(model: Concrete): JsObject = {
         val obj = objFormat.writes(model)
-        val key = extractor.writeKeyToJson(extractor.readKeyFromModel(model))
+        val key = extractor.writeKeyToJson(model)
         obj ++ key
+      }
+    }
+  }
+
+  class FormatWithTypeKeyDerivation[Abstract](implicit extractor: TypeKeyExtractor[Abstract]) {
+
+    /**
+     * Creates an object serializer for the given [[Concrete]] type that also serialized a type key field.
+     *
+     * The type key field depends on the implicit [[TypeKeyExtractor]] provided.
+     * By serializing this type key, you can use [[formatAbstract]] on a superclass
+     * to match and deserialize this type appropriately.
+     *
+     * Usage:
+     * {{{
+     * object Specific extends JsonImplicits {
+     *   implicit val format: Format[Specific] = Json.formatWithType[Specific, Generic](Json.oformat[Specific])
+     * }
+     * }}}
+     *
+     * @param objFormat the OFormat to add type info to
+     * @tparam Concrete the concrete type to format this as
+     * @return a [[OFormat]] that serializes the type key as json alongside the given formatter
+     */
+    def addedTo[Concrete <: Abstract](objFormat: OFormat[Concrete]): OFormat[Concrete] = {
+      new OFormat[Concrete] {
+        override def reads(json: JsValue): JsResult[Concrete] = objFormat.reads(json)
+        override def writes(model: Concrete): JsObject = {
+          val obj = objFormat.writes(model)
+          val key = extractor.writeKeyToJson(model)
+          obj ++ key
+        }
+      }
+    }
+
+    /**
+      * Creates an object serializer for the given [[Concrete]] type that serializes a constant set of values
+      * alongside the type key field.
+      *
+      * @param value the value from which to extract the type key json
+      * @param fields any additional values to serialize alongside the type key
+      * @return an [[OFormat]] that serializes the given value's type key along with any fields given
+      */
+    def pure[Concrete <: Abstract](value: Concrete, fields: JsObject = Json.obj()): OFormat[Concrete] = {
+      new OFormat[Concrete] {
+        override def reads(json: JsValue): JsResult[Concrete] = {
+          extractor.readKeyFromJson(json).flatMap(_ => JsSuccess[Concrete](value))
+        }
+        override def writes(model: Concrete): JsObject = {
+          extractor.writeKeyToJson(model) ++ fields
+        }
       }
     }
   }
@@ -141,7 +204,7 @@ object AbstractJsonOps extends JsonImplicits {
    *               to the specific [[OFormat]] that should be used to deserialize it
    * @tparam T the generic type for which to create a format
    * @return an OFormat that will deserialize the specific subclasses of [[T]] or will throw
-   *         an [[UnrecognizedTypeKey]] exception, if the key is not matched by the partial function
+   *         an [[UnrecognizedTypeKeyException]] exception, if the key is not matched by the partial function
    */
   def formatAbstract[T : TypeKeyExtractor](choose: PartialFunction[Any, OFormat[_ <: T]]): OFormat[T] =
     new OFormat[T] {
@@ -160,7 +223,7 @@ object AbstractJsonOps extends JsonImplicits {
        * Finds the appropriate format for a parsed key.
        *
        * @param typeKey the key used to lookup the format
-       * @throws UnrecognizedTypeKey if the key has no corresponding format
+       * @throws UnrecognizedTypeKeyException if the key has no corresponding format
        */
       private def findFormatOrThrow(typeKey: Any): OFormat[T] = {
         val format = chooseOrNone(typeKey) getOrElse extractor.throwUnrecognizedTypeKey(typeKey)
@@ -168,59 +231,143 @@ object AbstractJsonOps extends JsonImplicits {
         format.asInstanceOf[OFormat[T]]
       }
 
+      /**
+        * Handles errors that arise when a type key maps to the wrong type of formatter.
+        *
+        * @param typeKey the type key for error logging
+        * @param action the action that uses the formatter found by this key
+        */
+      private def findFormatAndHandleExceptions[A](typeKey: Any)(action: OFormat[T] => A): A = {
+        try action(findFormatOrThrow(typeKey))
+        catch {
+          case cce: ClassCastException =>
+            throw new WrongAbstractFormatException(
+              extractor.valueType,
+              typeKey,
+              extractor.keyPath,
+              extractor.keyType,
+              cce
+            )
+        }
+      }
+
       override def reads(json: JsValue): JsResult[T] = {
-        extractor.readKeyFromJson(json) flatMap { typeKey => findFormatOrThrow(typeKey).reads(json) }
+        extractor.readKeyFromJson(json) flatMap { typeKey =>
+          findFormatAndHandleExceptions(typeKey) { format =>
+            format.reads(json)
+          }
+        }
       }
 
       override def writes(o: T): JsObject = {
         val typeKey = extractor.readKeyFromModel(o)
-        val obj = findFormatOrThrow(typeKey).writes(o)
-        val jsonKey = extractor.writeKeyToJson(typeKey)
+        val obj = findFormatAndHandleExceptions(typeKey) { format =>
+          format.writes(o)
+        }
+        val jsonKey = extractor.writeKeyToJson(o)
         // TODO: Warn about overwritten keys?
         obj ++ jsonKey
       }
     }
 
   /**
-   * Creates an immutable builder for creating a [[TypeKeyExtractor]] for a type.
-   *
-   * @note This doesn't actually create the extractor. It just captures the type of trait
-   *       or abstract class, so that the [[TypeKeyDerivation.using]] method is easier to
-   *       define without unnecessary type arguments.
-   *
-   * @tparam T the type of [[TypeKeyExtractor]] to build
-   * @return a [[TypeKeyDerivation]] for building the final extrator
-   */
-  def extractTypeKey[T]: TypeKeyDerivation[T] = new TypeKeyDerivation[T]
+    * Creates an immutable builder for creating a [[TypeKeyExtractor]] for a type.
+    *
+    * @note This doesn't actually create the extractor. It just captures the type of trait
+    *       or abstract class, so that the [[TypeKeyDerivation.usingKeyField]] and
+    *       [[TypeKeyDerivation.usingKeyObject]] methods are easier to define without
+    *       having to provide explicit type arguments.
+    * @tparam T the type of [[TypeKeyExtractor]] to build
+    * @return a [[TypeKeyDerivation]] for building the final extractor
+    */
+  def extractTypeKey[T: TypeTag]: TypeKeyDerivation[T] = new TypeKeyDerivation[T]
 
-  class TypeKeyDerivation[T] private[AbstractJsonOps] extends JsonImplicits {
+  class TypeKeyDerivation[T] private[AbstractJsonOps] (implicit modelTag: TypeTag[T]) {
 
     /**
-     * Builds a [[TypeKeyExtractor]] for the captured type using the given function from
-     * model to key value and the path in the json to that key.
-     *
-     * @note this requires and implicit [[Format]] of the key value type in order to parse
-     *       the key from the given field in the json.
-     *
-     * @param getModelKey a function that extracts the key from the model
-     * @param jsonKeyPath the path in the json to the key
-     * @return a TypeKeyExtractor that uses the given functions to read and write the key
-     *         to the output Json.
-     */
+      * @see [[usingKeyField]]
+      */
+    @deprecated("Use _.usingKeyField instead.", "1.3.0")
     def using[K: TypeTag: Format](
       getModelKey: T => K,
       jsonKeyPath: JsPath
-      )(implicit valueTag: TypeTag[T]): TypeKeyExtractor[T] =
+      ): TypeKeyExtractor[T] = TypeKeyExtractor[T, K](getModelKey, jsonKeyPath)
+
+    /**
+      * Builds a [[TypeKeyExtractor]] for the captured type using the given function from
+      * model to key value and the path in the json to that key.
+      *
+      * @note this requires and implicit [[Format]] of the key value type in order to parse
+      *       the key from the given field in the json.
+      * @param getModelKey a function that extracts the key from the model
+      * @param jsonKeyPath the path in the json to the key
+      * @return a TypeKeyExtractor that uses the given functions to read and write the key
+      *         to the output Json.
+      */
+    def usingKeyField[K: TypeTag: Format](
+      getModelKey: T => K,
+      jsonKeyPath: JsPath
+    ): TypeKeyExtractor[T] = TypeKeyExtractor[T, K](getModelKey, jsonKeyPath)
+
+    /**
+      * A more flexible [[TypeKeyExtractor]] that reads the json into any value and writes it
+      * as a JsObject to be merged with the rest of the model.
+      *
+      * @note the written key is merged at the root with the rest of the model.
+      * @param keyPathReaders a function that extracts the key from json
+      * @param writeKey the function to use to write the key as a JsObject
+      * @return a TypeKeyExtractor that uses the given functions to read and write the key
+      *         to the output Json.
+      */
+    def usingKeyObject(keyPathReaders: (JsPath, Reads[_])*)(writeKey: T => JsObject): TypeKeyExtractor[T] = {
       new TypeKeyExtractor[T] {
-        override final type Key = K
-        override def keyTypeTag: TypeTag[Key] = implicitly
+        override final type Key = Any
+        override def keyTypeTag: TypeTag[Any] = implicitly
         override val keyType: Type = keyTypeTag.tpe
-        override def valueTypeTag: TypeTag[T] = valueTag
+        override def valueTypeTag: TypeTag[T] = modelTag
         override val valueType: Type = valueTypeTag.tpe
-        override val keyPath: JsPath = jsonKeyPath
-        override val formatAtKeyPath: Format[Key] = Format.of[K]
-        override def readKeyFromModel(model: T): Key = getModelKey(model)
+        override val keyPath: JsPath = __ // The key is flattened into the main object
+        override def writeKeyToJson(model: T): JsObject = writeKey(model)
+        override def readKeyFromModel(model: T): Key = {
+          val jsonKey = writeKey(model)
+          readKeyFromJson(jsonKey).recoverTotal { err =>
+            throw new JsonTypeKeyReadException(valueType, jsonKey, err)
+          }
+        }
+        override def readKeyFromJson(json: JsValue): JsResult[Key] = {
+          json.validate[JsObject] flatMap { obj =>
+            // Merge all path specific errors into a combined error and accumulate the successful results
+            val foundResults = keyPathReaders.foldLeft[(JsError, List[((JsPath, JsValue), Key)])]((JsError(), Nil)) {
+              case ((prevErrors, prevSuccesses), (path, format)) =>
+                val extractedKey = for {
+                  potentialKey <- path.asSingleJsResult(obj)
+                  foundKey <- format.reads(potentialKey)
+                } yield {
+                  (prevErrors, (path -> potentialKey, foundKey) :: prevSuccesses)
+                }
+                val allResults = extractedKey.recoverTotal { err =>
+                  (JsError.merge(err, prevErrors), prevSuccesses)
+                }
+                allResults
+            }
+            // Merge the final result from
+            val finalResult: JsResult[Key] = foundResults match {
+              case (allMergedPathErrors, Nil) =>
+                allMergedPathErrors
+              case (_, ((path, _), foundOneKey) :: Nil) =>
+                JsSuccess(foundOneKey, path)
+              case (_, foundMany) =>
+                val possibleKeys = foundMany.map {
+                  case ((path, keyJson), keyValue) =>
+                    (path, Seq(ValidationError(s"Possible key: $keyValue")))
+                }
+                JsError.merge(JsError(s"Found multiple possible keys for $valueType."), JsError(possibleKeys))
+            }
+            finalResult
+          }
+        }
       }
+    }
   }
 }
 
@@ -237,9 +384,10 @@ object AbstractJsonOps extends JsonImplicits {
  * In other words, this acts as a bi-directional binding between the key stored on the generic type [[T]]
  * and the key stored in json. All that remains is to provide the function from key to specific serializer.
  */
-@implicitNotFound("You must define an implicit TypeKeyExtractor[${T}] in scope.  " +
-  "Try adding `implicit val extractor = Json.deriveTypeKey[${T}].using(_.keyField, __ \\ \"keyPath\")` " +
-  "to the companion object of ${T}")
+@implicitNotFound(
+  "You must define an implicit TypeKeyExtractor[${T}] in scope.\n" +
+  "Try adding the following to the companion object of ${T}:\n" +
+  "implicit val extractor = Json.deriveTypeKey[${T}].usingKeyField(__ \\ \"keyPath\", _.keyField)")
 abstract class TypeKeyExtractor[T] private[ops] {
 
   /**
@@ -287,46 +435,72 @@ abstract class TypeKeyExtractor[T] private[ops] {
   def keyPath: JsPath
 
   /**
-   * The format used to parse the key at the [[keyPath]].
-   *
-   * @note this is protected to avoid leaking this into the public API.
-   */
-  protected val formatAtKeyPath: Format[Key]
-
-  /**
-   * The single [[OFormat]] used for reading and writing the [[Key]]
-   */
-  final protected lazy val keyFormat: OFormat[Key] = keyPath format formatAtKeyPath
-
-  /**
    * Reads the key field off of the model object.
-   * @return the key used to look up the specific serializer
+    *
+    * @return the key used to look up the specific serializer
    */
   def readKeyFromModel(model: T): Key
 
   /**
    * Reads the key field off of the json.
-   * @return the key used to look up the specific serializer
+    *
+    * @return the key used to look up the specific serializer
    */
-  def readKeyFromJson(json: JsValue): JsResult[Key] = keyFormat reads json
+  def readKeyFromJson(json: JsValue): JsResult[Key]
 
   /**
    * Writes the key field to the output json.
-   * @return the json object to be combined with the output json
+    *
+    * @return the json object to be combined with the output json
    */
-  def writeKeyToJson(key: Key): JsObject = keyFormat writes key
+  def writeKeyToJson(model: T): JsObject
 
   /**
-   * Throws an [[UnrecognizedTypeKey]] exception with all the appropriate arguments.
-   * @param key the parsed key that has no corresponding [[OFormat]] for the specific
+   * Throws an [[UnrecognizedTypeKeyException]] exception with all the appropriate arguments.
+    *
+    * @param key the parsed key that has no corresponding [[OFormat]] for the specific
    *            type associated with it
    */
   def throwUnrecognizedTypeKey(key: Any): Nothing = {
-    throw new UnrecognizedTypeKey(valueType, key, keyPath, keyType)
+    throw new UnrecognizedTypeKeyException(valueType, key, keyPath, keyType)
   }
 }
 
 object TypeKeyExtractor {
+
+  /**
+    * Builds a [[TypeKeyExtractor]] from all the provided arguments.
+    *
+    * @see [[AbstractJsonOps.extractTypeKey]] for a more convenient syntax.
+    */
+  def apply[T, K](extractKey: T => K, pathToKey: JsPath = __)(
+    implicit formatKey: Format[K], tTag: TypeTag[T], kTag: TypeTag[K]): TypeKeyExtractor[T] = {
+    new TypeKeyExtractor[T] {
+      override type Key = K
+      override val keyPath: JsPath = pathToKey
+      override val keyTypeTag: TypeTag[Key] = kTag
+      override val keyType: Type = kTag.tpe
+      override val valueTypeTag: TypeTag[T] = tTag
+      override val valueType: Type = tTag.tpe
+      private val keyFormat: OFormat[K] = pathToKey.format(formatKey)
+      override def readKeyFromJson(json: JsValue): JsResult[Key] = keyFormat.reads(json)
+      override def writeKeyToJson(model: T): JsObject = {
+        val key = extractKey(model)
+        keyFormat.writes(key)
+      }
+      override def readKeyFromModel(model: T): Key = extractKey(model)
+    }
+  }
+
+  /**
+    * Builds a [[TypeKeyExtractor]] from all the provided arguments.
+    *
+    * @see [[AbstractJsonOps.extractTypeKey]] for a more convenient syntax.
+    */
+  def apply[T, K](extractKey: T => K, pathToKey: JsPath, readsKey: JsValue => JsResult[K], writesKey: K => JsValue)(
+    implicit tTag: TypeTag[T], kTag: TypeTag[K]): TypeKeyExtractor[T] = {
+    TypeKeyExtractor[T, K](extractKey, pathToKey)(Format(Reads(readsKey), Writes(writesKey)), tTag, kTag)
+  }
 
   def of[T: TypeKeyExtractor]: TypeKeyExtractor[T] = implicitly
 }

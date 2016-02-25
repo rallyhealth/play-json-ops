@@ -2,7 +2,7 @@ package play.api.libs.json.ops
 
 import org.scalacheck.{Arbitrary, Gen}
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
-import org.scalatest.{Matchers, FlatSpec, ParallelTestExecution}
+import org.scalatest.{FlatSpec, Matchers}
 import play.api.libs.json._
 import play.api.libs.json.scalacheck.JsValueGenerators
 
@@ -24,7 +24,9 @@ with JsonImplicits {
     val troll = JsString("trolled :)")
     implicit val transform = JsonTransform[Troll](_ => troll)
     forAll() { (json: JsValue) =>
-      assert(json.transformAs[Troll] == troll)
+      assertResult(troll) {
+        json.transformAs[Troll]
+      }
     }
   }
 
@@ -33,18 +35,21 @@ with JsonImplicits {
   it should "convert the json as normal" in {
     implicit val transform = JsonTransform.redactPaths[Troll](Seq(__ \ "value"))
     forAll() { (troll: Troll) =>
-      val parsed = Json.toJson(troll).asOrThrow[Troll]
-      assert(parsed == troll)
+      assertResult(troll) {
+        Json.toJson(troll).asOrThrow[Troll]
+      }
     }
   }
 
   it should "transform the json when throwing an exception" in {
     implicit val transform = JsonTransform.redactPaths[Troll](Seq(__ \ "value"))
     forAll() { (json: JsObject) =>
-      val ex = intercept[InvalidJson] {
+      val ex = intercept[InvalidJsonException] {
         json.asOrThrow[Troll]
       }
-      assert(ex.json \ "value" == JsonTransform.RedactedValue)
+      assertResult(JsonTransform.RedactedValue) {
+        ex.json \ "value"
+      }
     }
   }
 }

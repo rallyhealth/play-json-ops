@@ -12,7 +12,9 @@ trait JsonImplicits extends ImplicitTupleFormats with JsValueImplicits {
 
   implicit def oformatOps(oformat: OFormat.type): OFormatOps.type = OFormatOps
 
-  implicit def abstractFormatOps(json: Json.type): AbstractJsonOps.type = AbstractJsonOps
+  implicit def abstractJsonOps(json: Json.type): AbstractJsonOps.type = AbstractJsonOps
+
+  implicit def abstractJsonOps(json: TypeKeyExtractor.type): AbstractJsonOps.type = AbstractJsonOps
 
   /**
    * Provides a conversion for a format for generic Map[K, V]. Must have a Format[V] in scope.
