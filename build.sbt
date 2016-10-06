@@ -1,6 +1,6 @@
 
 lazy val commonRootSettings = Seq(
-  version := "1.3.1",
+  version := "1.4.0",
   scalaVersion := "2.11.8",
   crossScalaVersions := Seq("2.11.8", "2.10.6"),
   organization := "me.jeffmay",
