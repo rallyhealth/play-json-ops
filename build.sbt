@@ -1,6 +1,6 @@
 
 lazy val commonRootSettings = Seq(
-  version := "1.3.1",
+  version := "1.4.0",
   scalaVersion := "2.11.8",
   crossScalaVersions := Seq("2.11.8", "2.10.6"),
   organization := "me.jeffmay",
@@ -55,25 +55,18 @@ lazy val common = commonRootSettings ++ Seq(
 )
 
 lazy val playJsonOps = project in file("playJsonOps") settings(common: _*) settings (
-
   name := "play-json-ops",
-
   libraryDependencies ++= Seq(
     "com.typesafe.play" %% "play-json" % playJsonVersion
   )
-
-) dependsOn (
-  playJsonTests % "test"
 )
 
 lazy val playJsonTests = project in file("playJsonTests") settings(common: _*) settings (
-
   name := "play-json-tests",
-
   libraryDependencies ++= Seq(
     "com.typesafe.play" %% "play-json" % playJsonVersion,
     "org.scalacheck" %% "scalacheck" % "1.12.5",
     "org.scalatest" %% "scalatest" % "2.2.6",
     "me.jeffmay" %% "scalacheck-ops" % "1.3.0"
   )
-)
+) dependsOn playJsonOps
