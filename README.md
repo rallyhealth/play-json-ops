@@ -8,6 +8,8 @@
   <tr>
     <th>play-json-ops</th>
     <th>play-json-tests</th>
+    <th>play-json-ops-25</th>
+    <th>play-json-tests-25</th>
   </tr>
   <tr>
     <td>
@@ -20,12 +22,22 @@
         <img src='https://api.bintray.com/packages/jeffmay/maven/play-json-tests/images/download.svg'>
       </a>
     </td>
+    <td>
+      <a href='https://bintray.com/jeffmay/maven/play-json-ops-25/_latestVersion'>
+        <img src='https://api.bintray.com/packages/jeffmay/maven/play-json-ops-25/images/download.svg'>
+      </a>
+    </td>
+    <td>
+      <a href='https://bintray.com/jeffmay/maven/play-json-tests-25/_latestVersion'>
+        <img src='https://api.bintray.com/packages/jeffmay/maven/play-json-tests-25/images/download.svg'>
+      </a>
+    </td>
   </tr>
 </table>
 
 # Play Json Ops
 
-Augments the [Play Json library](https://www.playframework.com/documentation/2.3.x/ScalaJson) with some helpful
+Augments the [Play Json library](https://www.playframework.com/documentation/2.5.x/ScalaJson) with some helpful
 implicits and tools for:
 
 - Creating formats for traits and abstract classes
@@ -34,7 +46,7 @@ implicits and tools for:
 - ScalaCheck generators for JsValue, JsArray, and JsObject
 - Formats for scala.concurrent.Duration
 - UTCFormats for org.joda.time.DateTime
-- Compile-time Json.oformat and Json.owrites macros
+- Compile-time Json.oformat and Json.owrites macros (Play 2.3 only)
 
 # Getting Started
 
@@ -44,16 +56,24 @@ Pretty much all of these tools become available when you extend [JsonImplicits](
 
 - [scalacheck-ops](https://github.com/jeffmay/scalacheck-ops): for the ability to convert ScalaCheck `Gen` into an `Iterator`
 
-## JsonImplicits
+# Features
 
-By extending `JsonImplicits`, you get access to all the implicit `TupleFormats` as well as the `Json.oformat`
-and `Json.owrites` macros. These are all be pretty self-explanatory:
- 
-- `Json.oformat` and `Json.owrites` will use the underlying `Json.format` and `Json.writes` macros, but it 
-  will cast the results to `OFormat` since it is impossible for those  macro to return anything other than
-  `OFormat` or `OWrites`, respectively.
-- `TupleFormats` will provide implicit `Reads` and `Writes` for all 22 tuple types by writing the result
-  as a `JsArray`
+## Implicits
+
+By importing `play.api.libs.json.ops._`, you get access to implicits that provide:
+
+* Many extension methods for the `play.api.libs.json.Json`
+  - `Format.of[A]`, `OFormat.of[A]`, and `OWrites.of[A]` for summoning formats the same as `Reads.of[A]` and `Writes.of[A]`
+  - `Format.asEither[A, B]` for reading and writing an either value based on some condition
+  - `Format.asString[A]` for reading and writing a wrapper type as a string
+  - `Format.pure` for reading and writing a constant value
+  - `Format.empty` for reading or writing an empty collection
+  - In Play 2.3, the `Json.format` and `Json.writes` macros would return `Format` and `Writes` instead of `OFormat` and
+    `OWrites`, even though the macros would only produce these types. The play-json-ops for Play 2.3 provides a `Json.oformat`
+    and `Json.owrites` which uses the underlying Play Json macros, but it casts the results.
+* `Reads` and `Writes` for tuple types by writing the result as a `JsArray`
+* The `JsValue` extension method `.asOrThrow[A]` which throws a better exception that `.as[A]`
+* And handy syntax for the features listed below
   
 ## Automatic Automated Tests
 
@@ -93,28 +113,31 @@ format: `Any => OFormat[_ <: Generic]`.
 
 The pattern works as follows:
 
-1. Create the formats of each of the specific formats using `AbstractJsonOps.formatWithType`
-   and the `JsonMacroOps.oformat` macro.
+1. Create the formats of each of the specific formats using `Json.formatWithType`
+   and the `Json.format` macro.
 
    This will append the key field (even if it isn't in the case class constructor args) to the output json.
 
 2. Create an implicit `TypeKeyExtractor` for the generic trait or abstract class on the companion object
    of that class.
 
-   This is required for the `AbstractJsonOps.formatWithType` to work properly and avoids repeating
+   This is required for the `Json.formatWithType` to work properly and avoids repeating
    unnecessary boilerplate on each of the specific serializers to write out the key or the generic
    serializer to read the key.
 
 3. Finally, define an implicit `Format` for your generic trait or abstract class using
-   `AbstractJsonOps.formatAbstract` by providing a partial function from the extracted key (from #2)
+   `Json.formatAbstract` by providing a partial function from the extracted key (from #2)
    to the specific serializer (from #1). Any unmatched keys will throw an exception.
 
 ```scala
+import play.api.libs.json._
+import play.api.libs.json.ops._
+
 sealed trait Generic {
   def key: String
 }
 
-object Generic extends JsonImplicits {
+object Generic {
 
   val keyFieldName = "key"
 
@@ -135,7 +158,7 @@ case class SpecificA(value: String) extends Generic {
 object SpecificA extends JsonImplicits {
   val key = "A"
 
-  implicit val format: OFormat[SpecificA] = Json.formatWithType[SpecificA, Generic](Json.oformat[SpecificA])
+  implicit val format: OFormat[SpecificA] = Json.formatWithType[SpecificA, Generic](Json.format[SpecificA])
 }
 
 case class SpecificB(value: String) extends Generic {
@@ -146,7 +169,7 @@ case class SpecificB(value: String) extends Generic {
 object SpecificB extends JsonImplicits {
   val key = "B"
 
-  implicit val format: OFormat[SpecificB] = Json.formatWithType[SpecificB, Generic](Json.oformat[SpecificB])
+  implicit val format: OFormat[SpecificB] = Json.formatWithType[SpecificB, Generic](Json.format[SpecificB])
 }
 ```
 
