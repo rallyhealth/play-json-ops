@@ -2,7 +2,7 @@ name := "play-json-ops-root"
 organization in ThisBuild := "me.jeffmay"
 organizationName in ThisBuild := "Jeff May"
 
-version in ThisBuild := "2.0.0"
+version in ThisBuild := "1.6.0"
 scalaVersion in ThisBuild := "2.11.11"
 crossScalaVersions in ThisBuild := Seq("2.11.11", "2.12.4")
 
@@ -52,6 +52,8 @@ def playJsonOps(includePlayVersion: String): Project = {
   }
   val id = s"play$playSuffix-json-ops"
   commonProject(id).settings(
+    // support legacy artifact name for 1.x branch final release
+    name := s"play-json-tests-$playSuffix",
     libraryDependencies ++= Seq(
       Dependencies.playJson(includePlayVersion)
     )
@@ -73,6 +75,11 @@ def playJsonTests(includePlayVersion: String, includeScalatestVersion: String): 
   val id = s"play$playSuffix-json-tests$scalacheckSuffix"
   val projectPath = s"play$playSuffix-json-tests"
   commonProject(id).settings(
+    // support legacy artifact name for 1.x branch final release
+    name := (includeScalatestVersion match {
+      case Dependencies.scalatest2Version => s"play-json-tests-$playSuffix"
+      case Dependencies.scalatest3Version => id
+    }),
     // set the source code directories to the shared project root
     sourceDirectory := file(s"$projectPath/src").getAbsoluteFile,
     (sourceDirectory in Compile) := file(s"$projectPath/src/main").getAbsoluteFile,
