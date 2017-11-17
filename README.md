@@ -19,6 +19,89 @@ implicits and tools for:
 - Compile-time Json.oformat and Json.owrites macros (Play 2.3 only)
 
 <h1>Versions</h1>
+
+<h2>2.X Branch</h2>
+<table>
+  <tr>
+    <th></th>
+    <th></th>
+    <th colspan=2>play-json-ops</th>
+    <th colspan=2>play-json-tests</th>
+  </tr>
+  <tr>
+    <th>play version</th>
+    <th>scalatest version</th>
+    <th>artifact name</th>
+    <th>bintray</th>
+    <th>artifact name</th>
+    <th>bintray</th>
+  </tr>
+  <tr>
+    <th>2.5.x</th>
+    <th>3.0.x</th>
+    <td>play25-json-ops</td>
+    <td>
+      <a href='https://bintray.com/jeffmay/maven/play25-json-ops/_latestVersion'>
+        <img src='https://api.bintray.com/packages/jeffmay/maven/play25-json-ops/images/download.svg'>
+      </a>
+    </td>
+    <td>play25-json-tests</td>
+    <td>
+      <a href='https://bintray.com/jeffmay/maven/play25-json-tests/_latestVersion'>
+        <img src='https://api.bintray.com/packages/jeffmay/maven/play25-json-tests/images/download.svg'>
+      </a>
+    </td>
+  </tr>
+  <tr>
+    <th>2.5.x</th>
+    <th>2.2.x</th>
+    <td>play25-json-ops</td>
+    <td>
+      <a href='https://bintray.com/jeffmay/maven/play25-json-ops/_latestVersion'>
+        <img src='https://api.bintray.com/packages/jeffmay/maven/play25-json-ops/images/download.svg'>
+      </a>
+    </td>
+    <td>play25-json-tests-sc12</td>
+    <td>
+      <a href='https://bintray.com/jeffmay/maven/play25-json-tests-sc12/_latestVersion'>
+        <img src='https://api.bintray.com/packages/jeffmay/maven/play25-json-tests-sc12/images/download.svg'>
+      </a>
+    </td>
+  </tr>
+  <tr>
+    <th>2.3.x</th>
+    <th>3.0.x</th>
+    <td>play23-json-ops</td>
+    <td>
+      <a href='https://bintray.com/jeffmay/maven/play23-json-ops/_latestVersion'>
+        <img src='https://api.bintray.com/packages/jeffmay/maven/play23-json-ops/images/download.svg'>
+      </a>
+    </td>
+    <td>play23-json-tests</td>
+    <td>
+      <a href='https://bintray.com/jeffmay/maven/play23-json-tests/_latestVersion'>
+        <img src='https://api.bintray.com/packages/jeffmay/maven/play23-json-tests/images/download.svg'>
+      </a>
+    </td>
+  </tr>
+  <tr>
+    <th>2.3.x</th>
+    <th>2.2.x</th>
+    <td>play23-json-ops</td>
+    <td>
+      <a href='https://bintray.com/jeffmay/maven/play23-json-ops/_latestVersion'>
+        <img src='https://api.bintray.com/packages/jeffmay/maven/play23-json-ops/images/download.svg'>
+      </a>
+    </td>
+    <td>play23-json-tests-sc12</td>
+    <td>
+      <a href='https://bintray.com/jeffmay/maven/play23-json-tests-sc12/_latestVersion'>
+        <img src='https://api.bintray.com/packages/jeffmay/maven/play23-json-tests-sc12/images/download.svg'>
+      </a>
+    </td>
+  </tr>
+</table>
+
 <h2>1.X Branch</h2>
 <table>
   <tr>
