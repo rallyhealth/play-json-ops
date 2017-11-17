@@ -29,7 +29,7 @@ object JsonTransform {
    *
    * @return a transformer that will pass the json through unchanged
    */
-  implicit def defaultTransform[A: ClassTag]: JsonTransform[A] = JsonTransform[A]((x: JsValue) => x)
+  implicit def defaultTransform[A: ClassTag]: JsonTransform[A] = JsonTransform[A](identity[JsValue])
 
   def apply[A](transform: JsValue => JsValue): JsonTransform[A] = new JsonTransform[A](transform)
 

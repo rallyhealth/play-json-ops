@@ -24,7 +24,7 @@ import scala.reflect.runtime.universe._
  *    unnecessary boilerplate on each of the specific serializers to write out the key or the generic
  *    serializer to read the key.
  *
- * 3. Finally, define an implicit [[Format]] for your generic trait or abstract class using
+ * 3. Finally, define an implicit [[OFormat]] for your generic trait or abstract class using
  *    [[AbstractJsonOps.formatAbstract]] by providing a partial function from the extracted key (from #2)
  *    to the specific serializer (from #1). Any unmatched keys will throw an exception.
  *
@@ -35,9 +35,9 @@ import scala.reflect.runtime.universe._
  *   }
  *
  *   object Generic extends JsonImplicits {
- *     implicit val extractor = Json.extractTypeKey[Generic].using(_.key, __ \ "key")
+ *     implicit val extractor: TypeKeyExtractor[Generic] = Json.extractTypeKey[Generic].using(_.key, __ \ "key")
  *
- *     implicit val format = Json.formatAbstract[Generic] {
+ *     implicit val format: OFormat[Generic] = Json.formatAbstract[Generic] {
  *       case "specific" => OFormat.of[Specific]
  *       // other subclasses can be keyed into here using the value of the key field on the json / model object
  *     }
@@ -49,43 +49,11 @@ import scala.reflect.runtime.universe._
  *   }
  *
  *   object Specific extends JsonImplicits {
- *     implicit val format = Json.formatWithType[Specific, Generic](Json.oformat[Specific])
+ *     implicit val format: OFormat[Specific] = Json.formatWithType[Specific, Generic](Json.oformat[Specific])
  *   }
  * }}}
  */
 object AbstractJsonOps {
-
-  /**
-   * Creates an object serializer [[OFormat]] that also serialized a type key field.
-   *
-   * The type key field depends on the implicit [[TypeKeyExtractor]] provided.
-   * By serializing this type key, you can use [[formatAbstract]] on a superclass
-   * to match and deserialize this type appropriately.
-   *
-   * Usage:
-   * {{{
-   * object Specific extends JsonImplicits {
-   *   implicit val format: Format[Specific] = Json.formatWithType[Specific, Generic](Json.oformat[Specific])
-   * }
-   * }}}
-   *
-   * @param objFormat the OFormat to add type info to
-   * @tparam Concrete the concrete type to format this as
-   * @tparam Abstract the abstract type for looking up the [[TypeKeyExtractor]]
-   * @return an OFormat that serializes the concrete type with a given type key extractor.
-   */
-  @deprecated("Use formatWithTypeKeyOf[Generic].addedTo(...) to build the OFormat each concrete subclass of the trait.", "1.2.3")
-  def formatWithType[Concrete, Abstract >: Concrete : TypeKeyExtractor](objFormat: OFormat[Concrete]): OFormat[Concrete] = {
-    new OFormat[Concrete] {
-      private val extractor: TypeKeyExtractor[Abstract] = implicitly
-      override def reads(json: JsValue): JsResult[Concrete] = objFormat.reads(json)
-      override def writes(model: Concrete): JsObject = {
-        val obj = objFormat.writes(model)
-        val key = extractor.writeKeyToJson(model)
-        obj ++ key
-      }
-    }
-  }
 
   /**
    * Builds an object format that writes the type key to the json, so that it can be read in
@@ -107,7 +75,7 @@ object AbstractJsonOps {
    * Usage:
    * {{{
    * object Specific extends JsonImplicits {
-   *   implicit val format: Format[Specific] = Json.formatWithType[Specific](Generic.extractor, Json.oformat[Specific])
+   *   implicit val format: OFormat[Specific] = Json.formatWithType[Specific](Generic.extractor, Json.oformat[Specific])
    * }
    * }}}
    *
@@ -283,15 +251,6 @@ object AbstractJsonOps {
   def extractTypeKey[T: TypeTag]: TypeKeyDerivation[T] = new TypeKeyDerivation[T]
 
   class TypeKeyDerivation[T] private[AbstractJsonOps] (implicit modelTag: TypeTag[T]) {
-
-    /**
-      * @see [[usingKeyField]]
-      */
-    @deprecated("Use _.usingKeyField instead.", "1.3.0")
-    def using[K: TypeTag: Format](
-      getModelKey: T => K,
-      jsonKeyPath: JsPath
-      ): TypeKeyExtractor[T] = TypeKeyExtractor[T, K](getModelKey, jsonKeyPath)
 
     /**
       * Builds a [[TypeKeyExtractor]] for the captured type using the given function from

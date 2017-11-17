@@ -12,7 +12,7 @@ private[ops] object Exceptions {
     */
   def keyAsCodeLiteral(keyValue: Any): String = {
     keyValue match {
-      case s: String => "\"%s\"".format(s) // for some reason string interpolation goes wonky here in 2.10
+      case s: String => "\"%s\"".format(s) // for some reason string interpolation goes wonky here in Scala 2.11
       case _ => keyValue.toString // this should work for most case classes and primitive types
     }
   }

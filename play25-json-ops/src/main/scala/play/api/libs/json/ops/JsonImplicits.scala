@@ -6,8 +6,6 @@ import scala.language.implicitConversions
 
 trait JsonImplicits extends ImplicitTupleFormats with JsValueImplicits {
 
-  implicit def jsonMacroOps(json: Json.type): JsonMacroOps.type = JsonMacroOps
-
   implicit def formatOps(format: Format.type): FormatOps.type = FormatOps
 
   implicit def oformatOps(oformat: OFormat.type): OFormatOps.type = OFormatOps
