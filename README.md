@@ -4,36 +4,6 @@
 <a href='https://coveralls.io/github/jeffmay/play-json-ops?branch=master'>
   <img src='https://coveralls.io/repos/jeffmay/play-json-ops/badge.svg?branch=master&service=github' alt='Coverage Status' />
 </a>
-<table>
-  <tr>
-    <th>play-json-ops</th>
-    <th>play-json-tests</th>
-    <th>play-json-ops-25</th>
-    <th>play-json-tests-25</th>
-  </tr>
-  <tr>
-    <td>
-      <a href='https://bintray.com/jeffmay/maven/play-json-ops/_latestVersion'>
-        <img src='https://api.bintray.com/packages/jeffmay/maven/play-json-ops/images/download.svg'>
-      </a>
-    </td>
-    <td>
-      <a href='https://bintray.com/jeffmay/maven/play-json-tests/_latestVersion'>
-        <img src='https://api.bintray.com/packages/jeffmay/maven/play-json-tests/images/download.svg'>
-      </a>
-    </td>
-    <td>
-      <a href='https://bintray.com/jeffmay/maven/play-json-ops-25/_latestVersion'>
-        <img src='https://api.bintray.com/packages/jeffmay/maven/play-json-ops-25/images/download.svg'>
-      </a>
-    </td>
-    <td>
-      <a href='https://bintray.com/jeffmay/maven/play-json-tests-25/_latestVersion'>
-        <img src='https://api.bintray.com/packages/jeffmay/maven/play-json-tests-25/images/download.svg'>
-      </a>
-    </td>
-  </tr>
-</table>
 
 # Play Json Ops
 
@@ -48,9 +18,92 @@ implicits and tools for:
 - UTCFormats for org.joda.time.DateTime
 - Compile-time Json.oformat and Json.owrites macros (Play 2.3 only)
 
+<h1>Versions</h1>
+<h2>1.X Branch</h2>
+<table>
+  <tr>
+    <th></th>
+    <th></th>
+    <th colspan=2>play-json-ops</th>
+    <th colspan=2>play-json-tests</th>
+  </tr>
+  <tr>
+    <th>play version</th>
+    <th>scalatest version</th>
+    <th>artifact name</th>
+    <th>bintray</th>
+    <th>artifact name</th>
+    <th>bintray</th>
+  </tr>
+  <tr>
+    <th>2.5.x</th>
+    <th>3.0.x</th>
+    <td>play-json-ops-25</td>
+    <td>
+      <a href='https://bintray.com/jeffmay/maven/play-json-ops-25/_latestVersion'>
+        <img src='https://api.bintray.com/packages/jeffmay/maven/play-json-ops-25/images/download.svg'>
+      </a>
+    </td>
+    <td>play25-json-tests</td>
+    <td>
+      <a href='https://bintray.com/jeffmay/maven/play25-json-tests/_latestVersion'>
+        <img src='https://api.bintray.com/packages/jeffmay/maven/play25-json-tests/images/download.svg'>
+      </a>
+    </td>
+  </tr>
+  <tr>
+    <th>2.5.x</th>
+    <th>2.2.x</th>
+    <td>play-json-ops-25</td>
+    <td>
+      <a href='https://bintray.com/jeffmay/maven/play-json-ops-25/_latestVersion'>
+        <img src='https://api.bintray.com/packages/jeffmay/maven/play-json-ops-25/images/download.svg'>
+      </a>
+    </td>
+    <td>play-json-tests-25</td>
+    <td>
+      <a href='https://bintray.com/jeffmay/maven/play-json-tests-25/_latestVersion'>
+        <img src='https://api.bintray.com/packages/jeffmay/maven/play-json-tests-25/images/download.svg'>
+      </a>
+    </td>
+  </tr>
+  <tr>
+    <th>2.3.x</th>
+    <th>3.0.x</th>
+    <td>play-json-ops</td>
+    <td>
+      <a href='https://bintray.com/jeffmay/maven/play-json-ops/_latestVersion'>
+        <img src='https://api.bintray.com/packages/jeffmay/maven/play-json-ops/images/download.svg'>
+      </a>
+    </td>
+    <td>play23-json-tests</td>
+    <td>
+      <a href='https://bintray.com/jeffmay/maven/play23-json-tests/_latestVersion'>
+        <img src='https://api.bintray.com/packages/jeffmay/maven/play23-json-tests/images/download.svg'>
+      </a>
+    </td>
+  </tr>
+  <tr>
+    <th>2.3.x</th>
+    <th>2.2.x</th>
+    <td>play-json-ops</td>
+    <td>
+      <a href='https://bintray.com/jeffmay/maven/play-json-ops/_latestVersion'>
+        <img src='https://api.bintray.com/packages/jeffmay/maven/play-json-ops/images/download.svg'>
+      </a>
+    </td>
+    <td>play-json-tests</td>
+    <td>
+      <a href='https://bintray.com/jeffmay/maven/play-json-tests/_latestVersion'>
+        <img src='https://api.bintray.com/packages/jeffmay/maven/play-json-tests/images/download.svg'>
+      </a>
+    </td>
+  </tr>
+</table>
+
 # Getting Started
 
-Pretty much all of these tools become available when you extend [JsonImplicits](src/main/scala/play/api/libs/json/ops/JsonImplicits.scala)
+Pretty much all of these tools become available when you `import `[`play.api.libs.json.ops._`](src/main/scala/play/api/libs/json/ops/package.scala)
 
 ## Dependencies
 
@@ -139,10 +192,8 @@ sealed trait Generic {
 
 object Generic {
 
-  val keyFieldName = "key"
-
   implicit val extractor: TypeKeyExtractor[Generic] =
-    Json.extractTypeKey[Generic].using(_.key, __ \ keyFieldName)
+    Json.extractTypeKey[Generic].using(_.key, __ \ "kind")
 
   implicit val format: OFormat[Generic] = Json.formatAbstract[Generic] {
     case SpecificA.key => OFormat.of[SpecificA]
@@ -155,9 +206,10 @@ case class SpecificA(value: String) extends Generic {
   override def key: String = SpecificA.key
 }
 
-object SpecificA extends JsonImplicits {
-  val key = "A"
+object SpecificA {
+  final val key = "A"
 
+  // NOTE: You will need to use Json.oformat for Play 2.3.x
   implicit val format: OFormat[SpecificA] = Json.formatWithType[SpecificA, Generic](Json.format[SpecificA])
 }
 
@@ -166,10 +218,16 @@ case class SpecificB(value: String) extends Generic {
   override def key: String = SpecificB.key
 }
 
-object SpecificB extends JsonImplicits {
-  val key = "B"
+object SpecificB {
+  final val key = "B"
 
   implicit val format: OFormat[SpecificB] = Json.formatWithType[SpecificB, Generic](Json.format[SpecificB])
+}
+
+case object SpecificC extends Generic {
+  final val key = "C"
+
+  implicit val format: OFormat[this.type] = OFormat.pure(this, Generic.extractor.writeKeyToJson(this))
 }
 ```
 
