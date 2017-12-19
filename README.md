@@ -193,7 +193,7 @@ sealed trait Generic {
 object Generic {
 
   implicit val extractor: TypeKeyExtractor[Generic] =
-    Json.extractTypeKey[Generic].using(_.key, __ \ "kind")
+    Json.extractTypeKey[Generic].usingKeyField(_.key, __ \ "kind")
 
   implicit val format: OFormat[Generic] = Json.formatAbstract[Generic] {
     case SpecificA.key => OFormat.of[SpecificA]
@@ -210,7 +210,7 @@ object SpecificA {
   final val key = "A"
 
   // NOTE: You will need to use Json.oformat for Play 2.3.x
-  implicit val format: OFormat[SpecificA] = Json.formatWithType[SpecificA, Generic](Json.format[SpecificA])
+  implicit val format: OFormat[SpecificA] = Json.formatWithTypeKeyOf[Generic].addedTo(Json.format[SpecificA])
 }
 
 case class SpecificB(value: String) extends Generic {
@@ -221,7 +221,7 @@ case class SpecificB(value: String) extends Generic {
 object SpecificB {
   final val key = "B"
 
-  implicit val format: OFormat[SpecificB] = Json.formatWithType[SpecificB, Generic](Json.format[SpecificB])
+  implicit val format: OFormat[SpecificB] = Json.formatWithTypeKeyOf[Generic].addedTo(Json.format[SpecificB])
 }
 
 case object SpecificC extends Generic {
