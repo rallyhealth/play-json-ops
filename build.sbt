@@ -2,7 +2,7 @@ name := "play-json-ops-root"
 organization in ThisBuild := "me.jeffmay"
 organizationName in ThisBuild := "Jeff May"
 
-version in ThisBuild := "1.6.0"
+version in ThisBuild := "1.6.1"
 scalaVersion in ThisBuild := "2.11.11"
 
 // don't publish the surrounding multi-project build
