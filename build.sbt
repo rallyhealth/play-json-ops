@@ -2,7 +2,7 @@ name := "play-json-ops-root"
 organization in ThisBuild := "me.jeffmay"
 organizationName in ThisBuild := "Jeff May"
 
-version in ThisBuild := "1.6.1"
+version in ThisBuild := "2.0.0"
 scalaVersion in ThisBuild := "2.11.11"
 
 // don't publish the surrounding multi-project build
@@ -49,14 +49,8 @@ def playJsonOps(includePlayVersion: String): Project = {
     case Dependencies.play23Version => "23"
     case Dependencies.play25Version => "25"
   }
-  val legacySuffix = includePlayVersion match {
-    case Dependencies.play23Version => ""
-    case Dependencies.play25Version => "-25"
-  }
   val id = s"play$playSuffix-json-ops"
   commonProject(id).settings(
-    // support legacy artifact name for 1.x branch final release
-    name := s"play-json-ops$legacySuffix",
     libraryDependencies ++= Seq(
       Dependencies.playJson(includePlayVersion)
     )
@@ -71,10 +65,6 @@ def playJsonTests(includePlayVersion: String, includeScalatestVersion: String): 
     case Dependencies.play23Version => "23"
     case Dependencies.play25Version => "25"
   }
-  val legacySuffix = includePlayVersion match {
-    case Dependencies.play23Version => ""
-    case Dependencies.play25Version => "-25"
-  }
   val scalacheckSuffix = includeScalatestVersion match {
     case Dependencies.scalatest2Version => "-sc12"
     case Dependencies.scalatest3Version => ""
@@ -82,11 +72,6 @@ def playJsonTests(includePlayVersion: String, includeScalatestVersion: String): 
   val id = s"play$playSuffix-json-tests$scalacheckSuffix"
   val projectPath = s"play$playSuffix-json-tests"
   commonProject(id).settings(
-    // support legacy artifact name for 1.x branch final release
-    name := (includeScalatestVersion match {
-      case Dependencies.scalatest2Version => s"play-json-tests$legacySuffix"
-      case Dependencies.scalatest3Version => id
-    }),
     // set the source code directories to the shared project root
     sourceDirectory := file(s"$projectPath/src").getAbsoluteFile,
     (sourceDirectory in Compile) := file(s"$projectPath/src/main").getAbsoluteFile,
