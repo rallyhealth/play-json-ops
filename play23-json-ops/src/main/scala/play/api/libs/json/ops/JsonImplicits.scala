@@ -12,6 +12,11 @@ trait JsonImplicits extends ImplicitTupleFormats with JsValueImplicits {
 
   implicit def oformatOps(oformat: OFormat.type): OFormatOps.type = OFormatOps
 
+  // $COVERAGE-OFF$
+  @deprecated("Use abstractJsonOps instead. This only exists for binary compatibility", "1.6.0")
+  def abstractFormatOps(json: Json.type): AbstractJsonOps.type = AbstractJsonOps
+  // $COVERAGE-ON$
+
   implicit def abstractJsonOps(json: Json.type): AbstractJsonOps.type = AbstractJsonOps
 
   implicit def abstractJsonOps(json: TypeKeyExtractor.type): AbstractJsonOps.type = AbstractJsonOps
