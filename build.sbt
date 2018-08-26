@@ -1,9 +1,14 @@
 name := "play-json-ops-root"
-organization in ThisBuild := "me.jeffmay"
-organizationName in ThisBuild := "Jeff May"
+organization in ThisBuild := "com.rallyhealth"
+organizationName in ThisBuild := "Rally Health"
 
 version in ThisBuild := "2.0.0"
 scalaVersion in ThisBuild := "2.11.11"
+
+licenses in ThisBuild := Seq("MIT" -> url("http://opensource.org/licenses/MIT"))
+
+resolvers in ThisBuild += "Typesafe Releases" at "http://repo.typesafe.com/typesafe/releases/"
+resolvers in ThisBuild += Resolver.bintrayRepo("rallyhealth", "ivy-scala-libs")
 
 // don't publish the surrounding multi-project build
 publish := {}
@@ -21,11 +26,6 @@ def commonProject(id: String): Project = {
       "-encoding", "UTF-8"
     ),
 
-    resolvers ++= Seq(
-      "Typesafe Releases" at "http://repo.typesafe.com/typesafe/releases/",
-      "jeffmay at bintray" at "https://dl.bintray.com/jeffmay/maven"
-    ),
-
     ivyScala := ivyScala.value map {
       _.copy(overrideScalaVersion = true)
     },
@@ -37,9 +37,7 @@ def commonProject(id: String): Project = {
     sources in(Compile, doc) := Seq.empty,
 
     // disable publishing empty ScalaDocs
-    publishArtifact in(Compile, packageDoc) := false,
-
-    licenses += ("Apache-2.0", url("http://opensource.org/licenses/apache-2.0"))
+    publishArtifact in(Compile, packageDoc) := false
 
   )
 }
