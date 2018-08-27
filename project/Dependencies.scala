@@ -7,7 +7,8 @@ object Dependencies {
 
   val scalatest2Version = "2.2.6"
   val scalatest3Version = "3.0.4"
-  private val scalacheckOpsVersion = "1.5.0"
+
+  private val scalacheckOpsVersion = "2.1.0"
 
   def playJson(playVersion: String): ModuleID = {
     "com.typesafe.play" %% "play-json" % playVersion
@@ -15,10 +16,10 @@ object Dependencies {
 
   def scalacheckOps(scalatestVersion: String): ModuleID = {
     val suffix = scalatestVersion match {
-      case `scalatest2Version` => ""
+      case `scalatest2Version` => "_1-12"
       case `scalatest3Version` => "_1-13"
     }
-    "me.jeffmay" %% s"scalacheck-ops$suffix" % scalacheckOpsVersion
+    "com.rallyhealth" %% s"scalacheck-ops$suffix" % scalacheckOpsVersion
   }
 
   def scalatest(scalatestVersion: String): ModuleID = {
