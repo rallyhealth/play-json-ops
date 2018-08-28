@@ -5,10 +5,13 @@ organizationName in ThisBuild := "Rally Health"
 version in ThisBuild := "2.0.0"
 scalaVersion in ThisBuild := "2.11.11"
 
+bintrayOrganization := Some("rallyhealth")
+bintrayRepository := "maven"
+
 licenses in ThisBuild := Seq("MIT" -> url("http://opensource.org/licenses/MIT"))
 
 resolvers in ThisBuild += "Typesafe Releases" at "http://repo.typesafe.com/typesafe/releases/"
-resolvers in ThisBuild += Resolver.bintrayRepo("rallyhealth", "ivy-scala-libs")
+resolvers in ThisBuild += Resolver.bintrayRepo("rallyhealth", "maven")
 
 // don't publish the surrounding multi-project build
 publish := {}
