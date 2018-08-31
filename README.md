@@ -190,7 +190,7 @@ Pretty much all of these tools become available when you `import `[`play.api.lib
 
 ## Dependencies
 
-- [scalacheck-ops](https://github.com/jeffmay/scalacheck-ops): for the ability to convert ScalaCheck `Gen` into an `Iterator`
+- [scalacheck-ops](https://github.com/rallyhealth/scalacheck-ops): for the ability to convert ScalaCheck `Gen` into an `Iterator`
 
 # Features
 
@@ -210,7 +210,7 @@ By importing `play.api.libs.json.ops._`, you get access to implicits that provid
 * `Reads` and `Writes` for tuple types by writing the result as a `JsArray`
 * The `JsValue` extension method `.asOrThrow[A]` which throws a better exception that `.as[A]`
 * And handy syntax for the features listed below
-  
+
 ## Automatic Automated Tests
 
 To get free test coverage, just extend `PlayJsonFormatSpec[T]` where `T` is a serializable type that you
@@ -245,7 +245,7 @@ class ExampleFormatSpec extends PlayJsonFormatSpec[Example]
 The following example shows how you can create a Format for the `Generic` trait using `Json.formatAbstract`.
 This method requires an implicit `TypeKeyExtractor[Generic]`, which is used to pull a "key" value from some
 field in the json / model. This key value is then matched on by a provided partial function from key to
-format: `Any => OFormat[_ <: Generic]`.  
+format: `Any => OFormat[_ <: Generic]`.
 
 The pattern works as follows:
 
@@ -330,7 +330,7 @@ Ok, now how the formats look in Json:
   ```json
   [1, "seconds"]
   ```
-  
+
 - `StringDurationFormat`
 
   ```json
