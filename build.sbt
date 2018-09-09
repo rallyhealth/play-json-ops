@@ -5,8 +5,8 @@ organizationName in ThisBuild := "Rally Health"
 version in ThisBuild := "2.0.0"
 scalaVersion in ThisBuild := "2.11.11"
 
-bintrayOrganization := Some("rallyhealth")
-bintrayRepository := "maven"
+bintrayOrganization in ThisBuild := Some("rallyhealth")
+bintrayRepository in ThisBuild := "maven"
 
 licenses in ThisBuild := Seq("MIT" -> url("http://opensource.org/licenses/MIT"))
 
