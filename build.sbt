@@ -2,7 +2,6 @@ name := "play-json-ops-root"
 organization in ThisBuild := "com.rallyhealth"
 organizationName in ThisBuild := "Rally Health"
 
-version in ThisBuild := "2.0.0"
 scalaVersion in ThisBuild := "2.11.11"
 
 bintrayOrganization in ThisBuild := Some("rallyhealth")
