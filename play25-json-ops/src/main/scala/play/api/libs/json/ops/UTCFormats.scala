@@ -3,8 +3,6 @@ package play.api.libs.json.ops
 import org.joda.time.{DateTime, DateTimeZone}
 import play.api.libs.json._
 
-import scala.language.implicitConversions
-
 /**
  * Provides a [[Format]] for [[DateTime]] that always reads and writes in UTC.
  *

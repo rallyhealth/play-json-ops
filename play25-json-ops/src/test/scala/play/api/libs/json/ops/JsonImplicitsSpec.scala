@@ -1,10 +1,23 @@
 package play.api.libs.json.ops
 
+import org.scalacheck.{Arbitrary, Gen, Shrink}
+import org.scalacheck.ops._
 import org.scalatest.FreeSpec
 import play.api.libs.json.{Format, Json}
 import org.scalatest.prop.GeneratorDrivenPropertyChecks._
 
 case class KeyWrapper(key: String)
+object KeyWrapper {
+  implicit val arbKeyWrapper: Arbitrary[KeyWrapper] = Arbitrary(Gen.string.map(KeyWrapper(_)))
+  implicit val shrinkKeyWrapper: Shrink[KeyWrapper] = Shrink { k =>
+    Shrink.shrinkString.shrink(k.key).map(KeyWrapper(_))
+  }
+
+  implicit lazy val format: Format[KeyWrapper] = Format.asString(convertFromString, _.key)
+  implicit val writeKey: WritesKey[KeyWrapper] = WritesKey(_.key)
+  implicit val readKey: ReadsKey[KeyWrapper] = ReadsKey.of[String].map(KeyWrapper(_))
+  implicit lazy val convertFromString: String => KeyWrapper = KeyWrapper(_)
+}
 
 class JsonImplicitsSpec extends FreeSpec {
 
@@ -12,51 +25,13 @@ class JsonImplicitsSpec extends FreeSpec {
     "A" -> "value",
     "B" -> "other"
   )
+
   private val exampleMap = Map(
     KeyWrapper("A") -> "value",
     KeyWrapper("B") -> "other"
   )
-  private val exampleMapFormat = {
-    formatMap[KeyWrapper, String](Format.of[String], KeyWrapper, _.key)
-  }
 
-  "implicit function resolution of formatMap should throw an error on writes" in {
-    implicit val fromString: String => KeyWrapper = KeyWrapper
-    assertDoesNotCompile {
-      """
-      Json.toJson(exampleMap)
-      """
-    }
-  }
-
-  "implicit function resolution of formatMap should throw an error on reads" in {
-    implicit val fromString: String => KeyWrapper = KeyWrapper
-    assertDoesNotCompile {
-      """
-      Json.fromJson[Map[KeyWrapper, String]](exampleJson)
-      """
-    }
-  }
-
-  "implicit conversion resolution of formatMap should throw an error on writes" in {
-    import scala.language.implicitConversions
-    implicit def fromString(key: String): KeyWrapper = KeyWrapper(key)
-    assertDoesNotCompile {
-      """
-      Json.toJson(exampleMap)
-      """
-    }
-  }
-
-  "implicit conversion resolution of formatMap should throw an error on reads" in {
-    import scala.language.implicitConversions
-    implicit def fromString(key: String): KeyWrapper = KeyWrapper(key)
-    assertDoesNotCompile {
-      """
-      Json.fromJson[Map[KeyWrapper, String]](exampleJson)
-      """
-    }
-  }
+  private val exampleMapFormat = Format.of[Map[KeyWrapper, String]]
 
   "explicit call to write should format the Json correctly" in {
     assertResult(exampleJson) {

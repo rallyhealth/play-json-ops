@@ -3,7 +3,7 @@
 
 # Play Json Ops
 
-Augments the [Play Json library](https://www.playframework.com/documentation/2.5.x/ScalaJson) with some helpful
+Augments the [Play Json library](https://www.playframework.com/documentation/2.6.x/ScalaJson) with some helpful
 implicits and tools for:
 
 - Creating formats for traits and abstract classes
