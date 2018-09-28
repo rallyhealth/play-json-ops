@@ -15,11 +15,15 @@ trait JsonImplicits extends ImplicitTupleFormats with JsValueImplicits {
   implicit def abstractJsonOps(json: TypeKeyExtractor.type): AbstractJsonOps.type = AbstractJsonOps
 
   /**
-   * Provides a conversion for a format for generic Map[K, V]. Must have a Format[V] in scope.
-   *
-   * @param readKey a function that converts String to K or throws an exception if the conversion cannot be made.
-   * @param writeKey a function that converts K to a String.
-   */
+    * DEPRECATED AND UNSAFE
+    *
+    * Provides a conversion for a format for generic Map[K, V]. Must have a Format[V] in scope.
+    *
+    * @param readKey a function that converts String to K or throws an exception if the conversion cannot be made.
+    * @param writeKey a function that converts K to a String.
+    */
+  @deprecated("This method uses an unsafe call to .toString by default. " +
+    "It will be removed in the next version.", "1.1.0")
   implicit def formatMap[K, V: Format](
     implicit readKey: String => K, writeKey: K => String = (_: K).toString): Format[Map[K, V]] = {
     val mapReads = Reads.mapReads[V]

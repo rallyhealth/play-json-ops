@@ -41,7 +41,7 @@ def commonProject(id: String): Project = {
     // disable publishing empty ScalaDocs
     publishArtifact in(Compile, packageDoc) := false
 
-  )
+  ).enablePlugins(SemVerPlugin)
 }
 
 def playJsonOps(includePlayVersion: String): Project = {
@@ -49,11 +49,18 @@ def playJsonOps(includePlayVersion: String): Project = {
     case Dependencies.play23Version => "23"
     case Dependencies.play25Version => "25"
   }
+  val scalatestVersion = includePlayVersion match {
+    case Dependencies.play23Version => Dependencies.scalatest2Version
+    case Dependencies.play25Version => Dependencies.scalatest3Version
+  }
   val id = s"play$playSuffix-json-ops"
   commonProject(id).settings(
     libraryDependencies ++= Seq(
       Dependencies.playJson(includePlayVersion)
-    )
+    ) ++ Seq(
+      Dependencies.scalacheckOps(scalatestVersion),
+      Dependencies.scalatest(scalatestVersion)
+    ).map(_ % Test)
   )
 }
 
