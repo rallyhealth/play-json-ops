@@ -1,9 +1,5 @@
-<a href='https://travis-ci.org/jeffmay/play-json-ops'>
-  <img src='https://travis-ci.org/jeffmay/play-json-ops.svg' alt='Build Status' />
-</a>
-<a href='https://coveralls.io/github/jeffmay/play-json-ops?branch=master'>
-  <img src='https://coveralls.io/repos/jeffmay/play-json-ops/badge.svg?branch=master&service=github' alt='Coverage Status' />
-</a>
+[![Build Status](https://travis-ci.org/rallyhealth/play-json-ops.svg?branch=master)](https://travis-ci.org/rallyhealth/play-json-ops)
+[![codecov](https://codecov.io/gh/rallyhealth/play-json-ops/branch/master/graph/badge.svg)](https://codecov.io/gh/rallyhealth/play-json-ops)
 
 # Play Json Ops
 
@@ -18,9 +14,10 @@ implicits and tools for:
 - UTCFormats for org.joda.time.DateTime
 - Compile-time Json.oformat and Json.owrites macros (Play 2.3 only)
 
-<h1>Versions</h1>
+# Versions
 
-<h2>2.X Branch</h2>
+## 2.X Branch
+
 <table>
   <tr>
     <th></th>
