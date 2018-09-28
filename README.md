@@ -39,13 +39,13 @@ implicits and tools for:
     <td>play25-json-ops</td>
     <td>
       <a href='https://bintray.com/jeffmay/maven/play25-json-ops/_latestVersion'>
-        <img src='https://api.bintray.com/packages/jeffmay/maven/play25-json-ops/images/download.svg'>
+        <img src='https://api.bintray.com/packages/rallyhealth/maven/play25-json-ops/images/download.svg'>
       </a>
     </td>
     <td>play25-json-tests</td>
     <td>
       <a href='https://bintray.com/jeffmay/maven/play25-json-tests/_latestVersion'>
-        <img src='https://api.bintray.com/packages/jeffmay/maven/play25-json-tests/images/download.svg'>
+        <img src='https://api.bintray.com/packages/rallyhealth/maven/play25-json-tests/images/download.svg'>
       </a>
     </td>
   </tr>
@@ -55,13 +55,13 @@ implicits and tools for:
     <td>play25-json-ops</td>
     <td>
       <a href='https://bintray.com/jeffmay/maven/play25-json-ops/_latestVersion'>
-        <img src='https://api.bintray.com/packages/jeffmay/maven/play25-json-ops/images/download.svg'>
+        <img src='https://api.bintray.com/packages/rallyhealth/maven/play25-json-ops/images/download.svg'>
       </a>
     </td>
     <td>play25-json-tests-sc12</td>
     <td>
       <a href='https://bintray.com/jeffmay/maven/play25-json-tests-sc12/_latestVersion'>
-        <img src='https://api.bintray.com/packages/jeffmay/maven/play25-json-tests-sc12/images/download.svg'>
+        <img src='https://api.bintray.com/packages/rallyhealth/maven/play25-json-tests-sc12/images/download.svg'>
       </a>
     </td>
   </tr>
@@ -71,13 +71,13 @@ implicits and tools for:
     <td>play23-json-ops</td>
     <td>
       <a href='https://bintray.com/jeffmay/maven/play23-json-ops/_latestVersion'>
-        <img src='https://api.bintray.com/packages/jeffmay/maven/play23-json-ops/images/download.svg'>
+        <img src='https://api.bintray.com/packages/rallyhealth/maven/play23-json-ops/images/download.svg'>
       </a>
     </td>
     <td>play23-json-tests</td>
     <td>
       <a href='https://bintray.com/jeffmay/maven/play23-json-tests/_latestVersion'>
-        <img src='https://api.bintray.com/packages/jeffmay/maven/play23-json-tests/images/download.svg'>
+        <img src='https://api.bintray.com/packages/rallyhealth/maven/play23-json-tests/images/download.svg'>
       </a>
     </td>
   </tr>
@@ -87,13 +87,13 @@ implicits and tools for:
     <td>play23-json-ops</td>
     <td>
       <a href='https://bintray.com/jeffmay/maven/play23-json-ops/_latestVersion'>
-        <img src='https://api.bintray.com/packages/jeffmay/maven/play23-json-ops/images/download.svg'>
+        <img src='https://api.bintray.com/packages/rallyhealth/maven/play23-json-ops/images/download.svg'>
       </a>
     </td>
     <td>play23-json-tests-sc12</td>
     <td>
       <a href='https://bintray.com/jeffmay/maven/play23-json-tests-sc12/_latestVersion'>
-        <img src='https://api.bintray.com/packages/jeffmay/maven/play23-json-tests-sc12/images/download.svg'>
+        <img src='https://api.bintray.com/packages/rallyhealth/maven/play23-json-tests-sc12/images/download.svg'>
       </a>
     </td>
   </tr>
@@ -127,7 +127,7 @@ implicits and tools for:
     <td>play25-json-tests</td>
     <td>
       <a href='https://bintray.com/jeffmay/maven/play25-json-tests/_latestVersion'>
-        <img src='https://api.bintray.com/packages/jeffmay/maven/play25-json-tests/images/download.svg'>
+        <img src='https://api.bintray.com/packages/rallyhealth/maven/play25-json-tests/images/download.svg'>
       </a>
     </td>
   </tr>
@@ -159,7 +159,7 @@ implicits and tools for:
     <td>play23-json-tests</td>
     <td>
       <a href='https://bintray.com/jeffmay/maven/play23-json-tests/_latestVersion'>
-        <img src='https://api.bintray.com/packages/jeffmay/maven/play23-json-tests/images/download.svg'>
+        <img src='https://api.bintray.com/packages/rallyhealth/maven/play23-json-tests/images/download.svg'>
       </a>
     </td>
   </tr>
