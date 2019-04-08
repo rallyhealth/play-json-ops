@@ -55,6 +55,12 @@ import scala.reflect.runtime.universe._
  */
 object AbstractJsonOps {
 
+  // TODO: Warn about overwritten keys?
+  @inline final private def addKeyToModel(key: JsObject, obj: JsObject): JsObject = {
+    if (key.keys.exists(obj.keys.contains)) obj ++ key // overwrite type key value to avoid breaking change
+    else key ++ obj // no conflicting keys, prepend the type key
+  }
+
   /**
    * Builds an object format that writes the type key to the json, so that it can be read in
    * by the [[OFormat]] built from the [[formatAbstract]] method.
@@ -89,7 +95,7 @@ object AbstractJsonOps {
       override def writes(model: Concrete): JsObject = {
         val obj = objFormat.writes(model)
         val key = extractor.writeKeyToJson(model)
-        obj ++ key
+        addKeyToModel(key, obj)
       }
     }
   }
@@ -120,7 +126,7 @@ object AbstractJsonOps {
         override def writes(model: Concrete): JsObject = {
           val obj = objFormat.writes(model)
           val key = extractor.writeKeyToJson(model)
-          obj ++ key
+          addKeyToModel(key, obj)
         }
       }
     }
@@ -139,7 +145,7 @@ object AbstractJsonOps {
           extractor.readKeyFromJson(json).flatMap(_ => JsSuccess[Concrete](value))
         }
         override def writes(model: Concrete): JsObject = {
-          extractor.writeKeyToJson(model) ++ fields
+          addKeyToModel(extractor.writeKeyToJson(model), fields)
         }
       }
     }
@@ -233,8 +239,7 @@ object AbstractJsonOps {
           format.writes(o)
         }
         val jsonKey = extractor.writeKeyToJson(o)
-        // TODO: Warn about overwritten keys?
-        obj ++ jsonKey
+        addKeyToModel(jsonKey, obj)
       }
     }
 
