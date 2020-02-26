@@ -3,183 +3,42 @@
 
 # Play Json Ops
 
-Augments the [Play Json library](https://www.playframework.com/documentation/2.6.x/ScalaJson) with some helpful
+Augments the [Play Json library](https://www.playframework.com/documentation/2.7.x/ScalaJson) with some helpful
 implicits and tools for:
 
 - Creating formats for traits and abstract classes
 - Safely printing error messages with redacted sensitive data using implicit transformations
-- Formats for all tuples as JsArray
-- ScalaCheck generators for JsValue, JsArray, and JsObject
+- Formats for tuples (up to arity-10) as JsArray
 - Formats for scala.concurrent.Duration
+- Safe formats for `Map` via `KeyReads` and `KeyWrites`  
+- Format builder for empty collections
 - UTCFormats for org.joda.time.DateTime
-- Compile-time Json.oformat and Json.owrites macros (Play 2.3 only)
+- ScalaCheck generators for JsValue, JsArray, and JsObject
 
 # Versions
 
+## 3.X Branch
+
+| play version | scala versions  | scalatest version | artifact name   | bintray |
+| ------------ | --------------- | ----------------- | --------------- | ------- |
+| 2.7.x        | 2.13.1          |                   | play27-json-ops | [ ![Download](https://api.bintray.com/packages/rallyhealth/maven/play27-json-ops/images/download.svg) ](https://bintray.com/rallyhealth/maven/play27-json-ops/_latestVersion) |
+| 2.7.x        | 2.13.1          | 3.1.x             | play27-json-tests-sc14 | [ ![Download](https://api.bintray.com/packages/rallyhealth/maven/play27-json-tests-sc14/images/download.svg) ](https://bintray.com/rallyhealth/maven/play27-json-tests-sc14/_latestVersion) |
+| 2.6.x        | 2.12.6, 2.11.12 |                   | play26-json-ops | [ ![Download](https://api.bintray.com/packages/rallyhealth/maven/play26-json-ops/images/download.svg) ](https://bintray.com/rallyhealth/maven/play26-json-ops/_latestVersion) |
+| 2.6.x        | 2.12.6, 2.11.12 | 3.0.x             | play26-json-tests-sc13 | [ ![Download](https://api.bintray.com/packages/rallyhealth/maven/play26-json-tests-sc13/images/download.svg) ](https://bintray.com/rallyhealth/maven/play26-json-tests-sc13/_latestVersion) |
+| 2.5.x        | 2.11.12         |                   | play25-json-ops | [ ![Download](https://api.bintray.com/packages/rallyhealth/maven/play25-json-ops/images/download.svg) ](https://bintray.com/rallyhealth/maven/play25-json-ops/_latestVersion) |
+| 2.5.x        | 2.11.12         | 3.0.x             | play25-json-tests-sc13 | [ ![Download](https://api.bintray.com/packages/rallyhealth/maven/play25-json-tests-sc13/images/download.svg) ](https://bintray.com/rallyhealth/maven/play25-json-tests-sc13/_latestVersion) |
+| 2.5.x        | 2.11.12         | 2.2.x             | play25-json-tests-sc12 | [ ![Download](https://api.bintray.com/packages/rallyhealth/maven/play25-json-tests-sc12/images/download.svg) ](https://bintray.com/rallyhealth/maven/play25-json-tests-sc12/_latestVersion) |
+
 ## 2.X Branch
 
-<table>
-  <tr>
-    <th></th>
-    <th></th>
-    <th colspan=2>play-json-ops</th>
-    <th colspan=2>play-json-tests</th>
-  </tr>
-  <tr>
-    <th>play version</th>
-    <th>scalatest version</th>
-    <th>artifact name</th>
-    <th>bintray</th>
-    <th>artifact name</th>
-    <th>bintray</th>
-  </tr>
-  <tr>
-    <th>2.5.x</th>
-    <th>3.0.x</th>
-    <td>play25-json-ops</td>
-    <td>
-      <a href='https://bintray.com/jeffmay/maven/play25-json-ops/_latestVersion'>
-        <img src='https://api.bintray.com/packages/rallyhealth/maven/play25-json-ops/images/download.svg'>
-      </a>
-    </td>
-    <td>play25-json-tests</td>
-    <td>
-      <a href='https://bintray.com/jeffmay/maven/play25-json-tests/_latestVersion'>
-        <img src='https://api.bintray.com/packages/rallyhealth/maven/play25-json-tests/images/download.svg'>
-      </a>
-    </td>
-  </tr>
-  <tr>
-    <th>2.5.x</th>
-    <th>2.2.x</th>
-    <td>play25-json-ops</td>
-    <td>
-      <a href='https://bintray.com/jeffmay/maven/play25-json-ops/_latestVersion'>
-        <img src='https://api.bintray.com/packages/rallyhealth/maven/play25-json-ops/images/download.svg'>
-      </a>
-    </td>
-    <td>play25-json-tests-sc12</td>
-    <td>
-      <a href='https://bintray.com/jeffmay/maven/play25-json-tests-sc12/_latestVersion'>
-        <img src='https://api.bintray.com/packages/rallyhealth/maven/play25-json-tests-sc12/images/download.svg'>
-      </a>
-    </td>
-  </tr>
-  <tr>
-    <th>2.3.x</th>
-    <th>3.0.x</th>
-    <td>play23-json-ops</td>
-    <td>
-      <a href='https://bintray.com/jeffmay/maven/play23-json-ops/_latestVersion'>
-        <img src='https://api.bintray.com/packages/rallyhealth/maven/play23-json-ops/images/download.svg'>
-      </a>
-    </td>
-    <td>play23-json-tests</td>
-    <td>
-      <a href='https://bintray.com/jeffmay/maven/play23-json-tests/_latestVersion'>
-        <img src='https://api.bintray.com/packages/rallyhealth/maven/play23-json-tests/images/download.svg'>
-      </a>
-    </td>
-  </tr>
-  <tr>
-    <th>2.3.x</th>
-    <th>2.2.x</th>
-    <td>play23-json-ops</td>
-    <td>
-      <a href='https://bintray.com/jeffmay/maven/play23-json-ops/_latestVersion'>
-        <img src='https://api.bintray.com/packages/rallyhealth/maven/play23-json-ops/images/download.svg'>
-      </a>
-    </td>
-    <td>play23-json-tests-sc12</td>
-    <td>
-      <a href='https://bintray.com/jeffmay/maven/play23-json-tests-sc12/_latestVersion'>
-        <img src='https://api.bintray.com/packages/rallyhealth/maven/play23-json-tests-sc12/images/download.svg'>
-      </a>
-    </td>
-  </tr>
-</table>
-
-<h2>1.X Branch</h2>
-<table>
-  <tr>
-    <th></th>
-    <th></th>
-    <th colspan=2>play-json-ops</th>
-    <th colspan=2>play-json-tests</th>
-  </tr>
-  <tr>
-    <th>play version</th>
-    <th>scalatest version</th>
-    <th>artifact name</th>
-    <th>bintray</th>
-    <th>artifact name</th>
-    <th>bintray</th>
-  </tr>
-  <tr>
-    <th>2.5.x</th>
-    <th>3.0.x</th>
-    <td>play-json-ops-25</td>
-    <td>
-      <a href='https://bintray.com/jeffmay/maven/play-json-ops-25/_latestVersion'>
-        <img src='https://api.bintray.com/packages/jeffmay/maven/play-json-ops-25/images/download.svg'>
-      </a>
-    </td>
-    <td>play25-json-tests</td>
-    <td>
-      <a href='https://bintray.com/jeffmay/maven/play25-json-tests/_latestVersion'>
-        <img src='https://api.bintray.com/packages/rallyhealth/maven/play25-json-tests/images/download.svg'>
-      </a>
-    </td>
-  </tr>
-  <tr>
-    <th>2.5.x</th>
-    <th>2.2.x</th>
-    <td>play-json-ops-25</td>
-    <td>
-      <a href='https://bintray.com/jeffmay/maven/play-json-ops-25/_latestVersion'>
-        <img src='https://api.bintray.com/packages/jeffmay/maven/play-json-ops-25/images/download.svg'>
-      </a>
-    </td>
-    <td>play-json-tests-25</td>
-    <td>
-      <a href='https://bintray.com/jeffmay/maven/play-json-tests-25/_latestVersion'>
-        <img src='https://api.bintray.com/packages/jeffmay/maven/play-json-tests-25/images/download.svg'>
-      </a>
-    </td>
-  </tr>
-  <tr>
-    <th>2.3.x</th>
-    <th>3.0.x</th>
-    <td>play-json-ops</td>
-    <td>
-      <a href='https://bintray.com/jeffmay/maven/play-json-ops/_latestVersion'>
-        <img src='https://api.bintray.com/packages/jeffmay/maven/play-json-ops/images/download.svg'>
-      </a>
-    </td>
-    <td>play23-json-tests</td>
-    <td>
-      <a href='https://bintray.com/jeffmay/maven/play23-json-tests/_latestVersion'>
-        <img src='https://api.bintray.com/packages/rallyhealth/maven/play23-json-tests/images/download.svg'>
-      </a>
-    </td>
-  </tr>
-  <tr>
-    <th>2.3.x</th>
-    <th>2.2.x</th>
-    <td>play-json-ops</td>
-    <td>
-      <a href='https://bintray.com/jeffmay/maven/play-json-ops/_latestVersion'>
-        <img src='https://api.bintray.com/packages/jeffmay/maven/play-json-ops/images/download.svg'>
-      </a>
-    </td>
-    <td>play-json-tests</td>
-    <td>
-      <a href='https://bintray.com/jeffmay/maven/play-json-tests/_latestVersion'>
-        <img src='https://api.bintray.com/packages/jeffmay/maven/play-json-tests/images/download.svg'>
-      </a>
-    </td>
-  </tr>
-</table>
+| play version | scala versions  | scalatest version | artifact name          | artifact version |
+| ------------ | --------------- | ----------------- | ---------------------- | ---------------- |
+| 2.5.x        | 2.11.12         |                   | play25-json-ops        | 2.1.1            |
+| 2.5.x        | 2.11.12         | 3.0.x             | play25-json-tests      | 2.1.1            |
+| 2.5.x        | 2.11.12         | 2.2.x             | play25-json-tests-sc12 | 2.1.1            |
+| 2.3.x        | 2.11.12         |                   | play23-json-ops        | 2.1.1            |
+| 2.3.x        | 2.11.12         | 3.0.x             | play23-json-tests      | 2.1.1            |
+| 2.3.x        | 2.11.12         | 2.2.x             | play23-json-tests-sc12 | 2.1.1            |
 
 # Getting Started
 
