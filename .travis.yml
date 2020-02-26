@@ -1,17 +1,15 @@
 language: scala
 scala:
-  - 2.11.12
+  - 2.13.1
 jdk:
   - openjdk8
 
 script:
-  - sbt clean coverage test \
-    +play26-json-tests-sc13/test \
-    +play27-json-tests-sc14/test \
-    coverageReport && sbt coverageAggregate
+  - sbt clean coverage test && sbt coverageAggregate
+  - sbt +play26-json-tests-sc13/test +play27-json-tests-sc14/test
 after_success:
   # Upload coverage reports to codecov.io
-  - bash <(curl -s https://codecov.io/bash) -t 24961df6-494e-4024-b035-ad2aca2ed706
+  - bash <(curl -s https://codecov.io/bash) -t da106017-e665-49d6-a9b8-6b847b2053f3
 
   # Tricks to avoid unnecessary cache updates
   - find $HOME/.sbt -name "*.lock" | xargs rm
