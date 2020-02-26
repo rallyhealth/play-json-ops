@@ -7,27 +7,27 @@ import play.api.libs.json.ops._
 class FormatOpsSpec extends AnyWordSpec {
 
   "Format.empty" should {
-    val formatList = Format.of[List[Nothing]]
+    val formatEmpty = Format.of[List[Nothing]]
 
     "reads Nil" in {
       assertResult(JsSuccess(Nil)) {
-        formatList.reads(Json.arr())
+        formatEmpty.reads(Json.arr())
       }
     }
 
     "writes Nil" in {
       assertResult(Json.arr()) {
-        formatList.writes(Nil)
+        formatEmpty.writes(Nil)
       }
     }
 
     "invalidate a non-empty array" in {
-      val result = formatList.reads(Json.arr(1))
+      val result = formatEmpty.reads(Json.arr(1))
       assert(result.isError)
     }
 
     "not compile when writing a seq" in {
-      assertDoesNotCompile("formatList.writes(Seq())")
+      assertDoesNotCompile("formatEmpty.writes(Seq())")
     }
   }
 

@@ -7,6 +7,7 @@ jdk:
 script:
   - sbt clean coverage test \
     +play26-json-tests-sc13/test \
+    +play27-json-tests-sc14/test \
     coverageReport && sbt coverageAggregate
 after_success:
   # Upload coverage reports to codecov.io

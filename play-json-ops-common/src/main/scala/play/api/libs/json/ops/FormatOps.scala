@@ -44,7 +44,7 @@ object FormatOps {
         case JsArray(Seq()) =>
           JsSuccess(empty)
         case unexpected =>
-          JsError(s"Unexpected value for Nil reader: $unexpected")
+          JsError(s"Unexpected value for empty iterable reader: $unexpected")
       },
       Writes(_ => JsArray())
     )

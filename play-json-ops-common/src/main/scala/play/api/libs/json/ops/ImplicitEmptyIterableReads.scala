@@ -1,6 +1,6 @@
 package play.api.libs.json.ops
 
-import play.api.libs.json.{JsArray, JsError, JsSuccess, Reads}
+import play.api.libs.json.{JsArray, JsError, JsSuccess, Json, Reads, Writes}
 
 /**
  * Creates implicits for reading empty collection types, such as List[Nothing].
@@ -20,4 +20,6 @@ private[ops] trait ImplicitEmptyIterableReads {
   implicit val readsEmptySeq: Reads[Seq[Nothing]] = readsEmptyIterable.map(_.toSeq)
 
   implicit val readsEmptyList: Reads[List[Nothing]] = readsEmptyIterable.map(_.toList)
+
+  implicit val writesEmptyIterable: Writes[Iterable[Nothing]] = Writes(_ => Json.arr())
 }

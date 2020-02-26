@@ -5,34 +5,48 @@ import play.api.libs.json._
 
 class FormatOpsSpec extends WordSpec {
 
-  "Format.empty(List)" should {
-    val formatList = FormatOps.empty(Nil)
+  "Format.empty[Iterable[Nothing]]" should {
+    val formatEmpty = Format.of[Iterable[Nothing]]
+
+    "reads Seq.empty" in {
+      assertResult(JsSuccess(Seq.empty)) {
+        formatEmpty.reads(Json.arr())
+      }
+    }
+
+    "writes Seq.empty" in {
+      assertResult(Json.arr()) {
+        formatEmpty.writes(Seq.empty)
+      }
+    }
+
+    "invalidate a non-empty array" in {
+      val result = formatEmpty.reads(Json.arr(1))
+      assert(result.isError)
+    }
+
+    "not compile when writing a non-empty seq" in {
+      assertDoesNotCompile("formatEmpty.writes(Seq(1))")
+    }
+  }
+
+  "Format.empty[List[Nothing]]" should {
+    val formatEmptyList = Format.of[List[Nothing]]
 
     "reads Nil" in {
       assertResult(JsSuccess(Nil)) {
-        formatList.reads(Json.arr())
+        formatEmptyList.reads(Json.arr())
       }
     }
 
     "writes Nil" in {
       assertResult(Json.arr()) {
-        formatList.writes(Nil)
+        formatEmptyList.writes(Nil)
       }
     }
 
-    "writes List[Nothing]" in {
-      assertResult(Json.arr()) {
-        formatList.writes(List.empty[Nothing])
-      }
-    }
-
-    "invalidate a non-empty array" in {
-      val result = formatList.reads(Json.arr(1))
-      assert(result.isError)
-    }
-
-    "not compile when writing a seq" in {
-      assertDoesNotCompile("formatList.writes(Seq())")
+    "not compile when writing an empty seq" in {
+      assertDoesNotCompile("formatEmptyList.writes(Seq())")
     }
   }
 
