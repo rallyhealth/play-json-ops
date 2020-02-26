@@ -2,11 +2,12 @@ package play.api.libs.json.ops
 
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.libs.json._
+import play.api.libs.json.ops._
 
 class FormatOpsSpec extends AnyWordSpec {
 
   "Format.empty" should {
-    val formatList = FormatOps.empty(List)
+    val formatList = Format.of[List[Nothing]]
 
     "reads Nil" in {
       assertResult(JsSuccess(Nil)) {
@@ -17,12 +18,6 @@ class FormatOpsSpec extends AnyWordSpec {
     "writes Nil" in {
       assertResult(Json.arr()) {
         formatList.writes(Nil)
-      }
-    }
-
-    "writes List[Nothing]" in {
-      assertResult(Json.arr()) {
-        formatList.writes(List.empty[Nothing])
       }
     }
 

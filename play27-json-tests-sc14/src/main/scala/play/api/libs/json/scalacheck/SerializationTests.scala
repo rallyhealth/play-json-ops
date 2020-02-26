@@ -5,8 +5,8 @@ import play.api.libs.json._
 
 import scala.reflect.ClassTag
 import scala.testing.{GenericTestSuite, TestSuiteBridge}
-import scala.util.Try
 import scala.util.control.{NoStackTrace, NonFatal}
+import scala.util.{Success, Try}
 
 /**
  * Mixin that adds some free serialization tests.
@@ -80,7 +80,10 @@ trait SerializationTests[T] extends GenericTestSuite {
         for (simpler <- shrink.shrink(expected)) {
           shrinks += 1
           val output = Try(serialize(simpler)) getOrElse { throw lastEx }
-          val expected = Try(deserialize(output)).toEither.left.map(_.getMessage).flatten getOrElse { throw lastEx }
+          val expected = Try(deserialize(output)) match {
+            case Success(Right(o)) => o
+            case _ => throw lastEx
+          }
           try assertSame(simpler, expected, output)
           catch {
             case NonFatal(ex) => lastEx = ex

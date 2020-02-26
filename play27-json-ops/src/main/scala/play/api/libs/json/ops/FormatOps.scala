@@ -2,7 +2,6 @@ package play.api.libs.json.ops
 
 import play.api.libs.json._
 
-import scala.collection.Factory
 import scala.language.higherKinds
 import scala.reflect._
 
@@ -22,28 +21,6 @@ object FormatOps {
     Format(
       Format.of[String] map fromString,
       Writes(it => JsString(toString(it)))
-    )
-  }
-
-  /**
-   * Creates a format for an empty collection type, such as Nil.type.
-   *
-   * Useful for avoiding compile-time errors when serializing empty collections,
-   * where the compiler cannot infer the item type of the collection.
-   *
-   * @param builder the collection builder (ie. Seq, List, etc)
-   * @tparam C the type of collection (ie. Seq, List, etc -- usually just inferred from builder)
-   * @return a Format[Empty] that will always write an empty JsArray() and read the given empty value.
-   */
-  def empty[C](builder: Factory[Nothing, C]): Format[C] = {
-    Format(
-      Reads {
-        case JsArray(arr) if arr.isEmpty =>
-          JsSuccess(builder.newBuilder.result())
-        case unexpected =>
-          JsError(s"Unexpected value for Nil reader: $unexpected")
-      },
-      Writes(_ => JsArray())
     )
   }
 

@@ -6,7 +6,6 @@ import play.api.libs.json._
 import play.api.libs.json.scalacheck.JsValueGenerators
 
 import scala.annotation.tailrec
-import scala.collection.immutable.Seq
 import scala.util.Random
 
 class JsonTransformSpec extends AnyFlatSpec

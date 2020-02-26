@@ -34,6 +34,10 @@ object FormatOps {
    * @tparam C the collection type
    * @return a Format that will always write an empty JsArray() and read the given empty value.
    */
+  @deprecated(
+    "You should not need this, since an implicit Reads[Iterable[Nothing]] is available from " +
+      "import play.api.libs.json.ops._",
+    "3.0.0")
   def empty[C[x] <: Traversable[x]](empty: C[Nothing]): Format[C[Nothing]] = {
     Format(
       Reads {

@@ -60,7 +60,7 @@ def playSuffix(includePlayVersion: String): String = includePlayVersion match {
 def scalaVersions(includePlayVersion: String): Seq[String] = includePlayVersion match {
   case Play_2_5 => Seq(Scala_2_11)
   case Play_2_6 => Seq(Scala_2_12, Scala_2_11)
-  case Play_2_7 => Seq(Scala_2_13)
+  case Play_2_7 => Seq(Scala_2_13, Scala_2_12, Scala_2_11)
 }
 
 def scalaCheckVersionForPlay(includePlayVersion: String): String = includePlayVersion match {

@@ -72,8 +72,8 @@ trait ArrayDurationFormat extends ImplicitDurationReads with ImplicitDurationWri
 
   override implicit val finiteDurationReads: Reads[FiniteDuration] = new Reads[FiniteDuration] {
     override def reads(json: JsValue): JsResult[FiniteDuration] = json.validate[(Long, String)] flatMap {
-      case (x, unit) =>
-        try JsSuccess(Duration(x, unit.toLowerCase))
+      case (length, unit) =>
+        try JsSuccess(Duration(length, unit.toLowerCase))
         catch {
           case NonFatal(ex: NumberFormatException) => JsError(ex.getMessage)
         }

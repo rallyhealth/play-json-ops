@@ -71,8 +71,8 @@ trait ArrayDurationFormat extends ImplicitDurationReads with ImplicitDurationWri
 
   override implicit val finiteDurationReads: Reads[FiniteDuration] = Reads {
     _.validate[(Long, String)] flatMap {
-      case (x, unit) =>
-        try JsSuccess(Duration(x, unit.toLowerCase))
+      case (length, unit) =>
+        try JsSuccess(Duration(length, unit.toLowerCase))
         catch {
           case NonFatal(ex: NumberFormatException) => JsError(ex.getMessage)
         }
