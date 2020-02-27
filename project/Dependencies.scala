@@ -2,28 +2,54 @@ import sbt._
 
 object Dependencies {
 
-  val play23Version = "2.3.10"
-  val play25Version = "2.5.10"
+  val Play_2_5 = "2.5.18"
+  val Play_2_6 = "2.6.19"
+  val Play_2_7 = "2.7.4"
 
-  val scalatest2Version = "2.2.6"
-  val scalatest3Version = "3.0.4"
+  val ScalaCheck_1_12 = "1.12.5"
+  val ScalaCheck_1_13 = "1.13.4"
+  val ScalaCheck_1_14 = "1.14.3"
 
-  private val scalacheckOpsVersion = "2.1.0"
+  private val Play_2_6_JsonVersion = "2.6.10"
+  private val ScalaCheckOpsVersion = "2.2.1"
+  private val ScalaTest_2 = "2.2.6"
+  private val ScalaTest_3 = "3.0.5"
+  private val ScalaTest_3_1 = "3.1.0"
+
+  private val ScalaTestPlusScalaCheck_1_14_Version = "3.1.0.0"
 
   def playJson(playVersion: String): ModuleID = {
-    "com.typesafe.play" %% "play-json" % playVersion
-  }
-
-  def scalacheckOps(scalatestVersion: String): ModuleID = {
-    val suffix = scalatestVersion match {
-      case `scalatest2Version` => "_1-12"
-      case `scalatest3Version` => "_1-13"
+    val playJsonVersion = playVersion match {
+      case Play_2_5 => Play_2_5
+      case Play_2_6 => Play_2_6_JsonVersion
+      case Play_2_7 => Play_2_7
     }
-    "com.rallyhealth" %% s"scalacheck-ops$suffix" % scalacheckOpsVersion
+    "com.typesafe.play" %% "play-json" % playJsonVersion
   }
 
-  def scalatest(scalatestVersion: String): ModuleID = {
-    "org.scalatest" %% "scalatest" % scalatestVersion
+  def scalaCheckOps(scalaCheckVersion: String): ModuleID = {
+    val suffix = scalaCheckVersion match {
+      case ScalaCheck_1_12 => "_1-12"
+      case ScalaCheck_1_13 => "_1-13"
+      case ScalaCheck_1_14 => "_1-14"
+    }
+    "com.rallyhealth" %% s"scalacheck-ops$suffix" % ScalaCheckOpsVersion
+  }
+
+  def scalaTest(scalaCheckVersion: String): ModuleID = {
+    val version = scalaCheckVersion match {
+      case ScalaCheck_1_12 => ScalaTest_2
+      case ScalaCheck_1_13 => ScalaTest_3
+      case ScalaCheck_1_14 => ScalaTest_3_1
+    }
+    "org.scalatest" %% "scalatest" % version
+  }
+
+  def scalaTestPlusScalaCheck(scalaCheckVersion: String): ModuleID = {
+    val version = scalaCheckVersion match {
+      case ScalaCheck_1_14 => ScalaTestPlusScalaCheck_1_14_Version
+    }
+    "org.scalatestplus" %% "scalacheck-1-14" % version
   }
 
 }
