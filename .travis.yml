@@ -5,8 +5,7 @@ jdk:
   - openjdk8
 
 script:
-  - sbt clean coverage test && sbt coverageAggregate
-  - sbt +play26-json-tests-sc13/test +play27-json-tests-sc14/test
+  - sbt clean coverage test coverageAggregate coverageOff
 after_success:
   # Upload coverage reports to codecov.io
   - bash <(curl -s https://codecov.io/bash) -t da106017-e665-49d6-a9b8-6b847b2053f3
