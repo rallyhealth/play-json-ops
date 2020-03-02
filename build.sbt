@@ -6,7 +6,7 @@ ThisBuild / organizationName := "Rally Health"
 
 val Scala_2_11 = "2.11.12"
 val Scala_2_12 = "2.12.6"
-val Scala_2_13 = "2.13.0"
+val Scala_2_13 = "2.13.1"
 
 ThisBuild / gitVersioningSnapshotLowerBound := "3.0.0"
 
@@ -22,9 +22,11 @@ ThisBuild / resolvers += Resolver.bintrayRepo("rallyhealth", "maven")
 publish := {}
 publishLocal := {}
 
-def commonProject(id: String): Project = {
+def commonProject(id: String, scalacVersion: String): Project = {
   Project(id, file(id)).settings(
     name := id,
+
+    scalaVersion := scalacVersion,
 
     // Include all of the dependencies in the loader. The base loader will be the Application
     // ClassLoader. All classes apart from system classes will be reloaded with each run instead
@@ -57,125 +59,139 @@ def playSuffix(includePlayVersion: String): String = includePlayVersion match {
   case Play_2_7 => "27"
 }
 
-def scalaVersions(includePlayVersion: String): Seq[String] = includePlayVersion match {
-  case Play_2_5 => Seq(Scala_2_11)
-  case Play_2_6 => Seq(Scala_2_12, Scala_2_11)
-  case Play_2_7 => Seq(Scala_2_13, Scala_2_12, Scala_2_11)
-}
-
 def scalaCheckVersionForPlay(includePlayVersion: String): String = includePlayVersion match {
   case Play_2_5 => ScalaCheck_1_12
   case Play_2_6 => ScalaCheck_1_13
   case Play_2_7 => ScalaCheck_1_14
 }
 
-def playJsonOpsCommon(includePlayVersion: String): Project = {
+def playJsonOpsCommon(scalacVersion: String, includePlayVersion: String): Project = {
   val id = s"play${playSuffix(includePlayVersion)}-json-ops-common"
   val projectPath = "play-json-ops-common"
-  val versions = scalaVersions(includePlayVersion)
   val scalaCheckVersion = scalaCheckVersionForPlay(includePlayVersion)
-  commonProject(id).settings(
-    scalaVersion := versions.head,
-    crossScalaVersions := versions,
+  commonProject(id, scalacVersion).settings(
     // set the source code directories to the shared project root
     sourceDirectory := file(s"$projectPath/src").getAbsoluteFile,
     Compile / sourceDirectory := file(s"$projectPath/src/main").getAbsoluteFile,
     Test / sourceDirectory := file(s"$projectPath/src/test").getAbsoluteFile,
     libraryDependencies ++= Seq(
       playJson(includePlayVersion)
-    ) ++ Seq(
+    ) ++ {
       // Test-only dependencies
-      scalaTest(scalaCheckVersion)
-    ).map(_ % Test)
+      includePlayVersion match {
+        case Play_2_7 => Seq(
+          scalaTest(scalaCheckVersion)
+        )
+        case _ => Seq()
+      }
+    }.map(_ % Test)
   )
 }
 
-lazy val `play25-json-ops-common` = playJsonOpsCommon(Play_2_5)
-lazy val `play26-json-ops-common` = playJsonOpsCommon(Play_2_6)
+lazy val `play25-json-ops-common-211` = playJsonOpsCommon(Scala_2_11, Play_2_5)
+lazy val `play26-json-ops-common-211` = playJsonOpsCommon(Scala_2_11, Play_2_6)
+lazy val `play26-json-ops-common-212` = playJsonOpsCommon(Scala_2_12, Play_2_6)
 
-def playJsonOps(includePlayVersion: String): Project = {
+def playJsonOps(scalacVersion: String, includePlayVersion: String): Project = {
   val id = s"play${playSuffix(includePlayVersion)}-json-ops"
-  val versions = scalaVersions(includePlayVersion)
   val scalaCheckVersion = scalaCheckVersionForPlay(includePlayVersion)
-  commonProject(id)
+  commonProject(id, scalacVersion)
     .settings(
-      scalaVersion := versions.head,
-      crossScalaVersions := versions,
       libraryDependencies ++= Seq(
         playJson(includePlayVersion)
-      ) ++ Seq(
+      ) ++ {
         // Test-only dependencies
-        scalaTest(scalaCheckVersion)
-      ).map(_ % Test)
+        Seq(
+          scalaCheckOps(scalaCheckVersion),
+          scalaTest(scalaCheckVersion)
+        ) ++ {
+          includePlayVersion match {
+            case Play_2_7 => Seq(
+              scalaTestPlusScalaCheck(scalaCheckVersion)
+            )
+            case _ => Seq()
+          }
+        }
+      }.map(_ % Test)
     )
-    .dependsOn(includePlayVersion match {
-      case Play_2_5 => `play25-json-ops-common`
-      case Play_2_6 => `play26-json-ops-common`
-    })
+    .dependsOn(((scalacVersion, includePlayVersion) match {
+      case (Scala_2_11, Play_2_5) => Seq(
+        `play25-json-ops-common-211`
+      )
+      case (Scala_2_11, Play_2_6) => Seq(
+        `play26-json-ops-common-211`
+      )
+      case (Scala_2_12, Play_2_6) => Seq(
+        `play26-json-ops-common-212`
+      )
+      case _ => Seq()
+    }).map(_ % Compile): _*)
 }
 
-lazy val `play25-json-ops` = playJsonOps(Play_2_5).settings(
+lazy val `play25-json-ops-211` = playJsonOps(Scala_2_11, Play_2_5).settings(
   libraryDependencies += scalaCheckOps(ScalaCheck_1_12) % Test
 )
-lazy val `play26-json-ops` = playJsonOps(Play_2_6)
-lazy val `play27-json-ops` = {
-  val versions = scalaVersions(Play_2_7)
-  commonProject("play27-json-ops").settings(
-    scalaVersion := versions.head,
-    crossScalaVersions := versions,
-    scalacOptions += "-deprecation:false",
-    libraryDependencies ++= Seq(
-      playJson(Play_2_7)
-    ) ++ Seq(
-      // Test-only dependencies
-      scalaTest(ScalaCheck_1_14),
-      scalaTestPlusScalaCheck(ScalaCheck_1_14),
-      scalaCheckOps(ScalaCheck_1_14)
-    ).map(_ % Test)
-  )
-}
+lazy val `play26-json-ops-211` = playJsonOps(Scala_2_11, Play_2_6)
+lazy val `play26-json-ops-212` = playJsonOps(Scala_2_12, Play_2_6)
+lazy val `play27-json-ops-211` = playJsonOps(Scala_2_11, Play_2_7)
+lazy val `play27-json-ops-212` = playJsonOps(Scala_2_12, Play_2_7)
+lazy val `play27-json-ops-213` = playJsonOps(Scala_2_13, Play_2_7)
 
-def playJsonTests(includePlayVersion: String, includeScalaCheckVersion: String): Project = {
-  val scalacheckSuffix = includeScalaCheckVersion match {
+def playJsonTests(scalacVersion: String, includePlayVersion: String, includeScalaCheckVersion: String): Project = {
+  val scalaCheckSuffix = includeScalaCheckVersion match {
     case ScalaCheck_1_12 => "-sc12"
     case ScalaCheck_1_13 => "-sc13"
+    case ScalaCheck_1_14 => "-sc14"
   }
-  val id = s"play${playSuffix(includePlayVersion)}-json-tests$scalacheckSuffix"
-  val projectPath = "play-json-tests-common"
-  val versions = scalaVersions(includePlayVersion)
-  commonProject(id).settings(
-    scalaVersion := versions.head,
-    crossScalaVersions := versions,
+  val id = s"play${playSuffix(includePlayVersion)}-json-tests$scalaCheckSuffix"
+  val projectPath = scalacVersion match {
+    case Scala_2_13 => id // Scala 2.13 has some incompatibilities that require its own source code
+    case _ => "play-json-tests-common"
+  }
+  commonProject(id, scalacVersion).settings(
     // set the source code directories to the shared project root
     sourceDirectory := file(s"$projectPath/src").getAbsoluteFile,
     Compile / sourceDirectory := file(s"$projectPath/src/main").getAbsoluteFile,
     Test / sourceDirectory := file(s"$projectPath/src/test").getAbsoluteFile,
     libraryDependencies ++= Seq(
-      scalaTest(includeScalaCheckVersion),
-      scalaCheckOps(includeScalaCheckVersion)
+      scalaCheckOps(includeScalaCheckVersion),
+      scalaTest(includeScalaCheckVersion)
+    ) ++ {
+      // Test-only dependencies
+      includePlayVersion match {
+        case Play_2_7 => Seq(
+          scalaTestPlusScalaCheck(includeScalaCheckVersion)
+        )
+        case _ => Seq()
+      }
+    }.map(_ % Test)
+  ).dependsOn(((scalacVersion, includePlayVersion) match {
+    case (Scala_2_11, Play_2_5) => Seq(
+      `play25-json-ops-211`
     )
-  ).dependsOn((includePlayVersion match {
-    case Play_2_5 => Seq(
-      `play25-json-ops`
+    case (Scala_2_11, Play_2_6) => Seq(
+      `play26-json-ops-211`
     )
-    case Play_2_6 => Seq(
-      `play26-json-ops`
+    case (Scala_2_12, Play_2_6) => Seq(
+      `play26-json-ops-212`
     )
+    case (Scala_2_11, Play_2_7) => Seq(
+      `play27-json-ops-211`
+    )
+    case (Scala_2_12, Play_2_7) => Seq(
+      `play27-json-ops-212`
+    )
+    case (Scala_2_13, Play_2_7) => Seq(
+      `play27-json-ops-213`
+    )
+    case _ => Seq()
   }).map(_ % Compile): _*)
 }
 
-lazy val `play25-json-tests-sc12` = playJsonTests(Play_2_5, ScalaCheck_1_12)
-lazy val `play25-json-tests-sc13` = playJsonTests(Play_2_5, ScalaCheck_1_13)
-lazy val `play26-json-tests-sc13` = playJsonTests(Play_2_6, ScalaCheck_1_13)
-lazy val `play27-json-tests-sc14` = {
-  val versions = scalaVersions(Play_2_7)
-  commonProject(s"play${playSuffix(Play_2_7)}-json-tests-sc14").settings(
-    scalaVersion := versions.head,
-    crossScalaVersions := versions,
-    libraryDependencies ++= Seq(
-      scalaCheckOps(ScalaCheck_1_14),
-      scalaTest(ScalaCheck_1_14),
-      scalaTestPlusScalaCheck(ScalaCheck_1_14)
-    )
-  ).dependsOn(`play27-json-ops`)
-}
+lazy val `play25-json-tests-sc12-211` = playJsonTests(Scala_2_11, Play_2_5, ScalaCheck_1_12)
+lazy val `play25-json-tests-sc13-211` = playJsonTests(Scala_2_11, Play_2_5, ScalaCheck_1_13)
+lazy val `play26-json-tests-sc13-211` = playJsonTests(Scala_2_11, Play_2_6, ScalaCheck_1_13)
+lazy val `play26-json-tests-sc13-212` = playJsonTests(Scala_2_12, Play_2_6, ScalaCheck_1_13)
+lazy val `play27-json-tests-sc14-211` = playJsonTests(Scala_2_11, Play_2_7, ScalaCheck_1_14)
+lazy val `play27-json-tests-sc14-212` = playJsonTests(Scala_2_12, Play_2_7, ScalaCheck_1_14)
+lazy val `play27-json-tests-sc14-213` = playJsonTests(Scala_2_13, Play_2_7, ScalaCheck_1_14)
