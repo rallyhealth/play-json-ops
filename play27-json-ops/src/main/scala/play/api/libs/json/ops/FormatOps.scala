@@ -4,8 +4,36 @@ import play.api.libs.json._
 
 import scala.language.higherKinds
 import scala.reflect._
+import scala.util.control.NonFatal
 
 object FormatOps {
+
+  /**
+   * Creates a Format for the given enumeration's values by converting it to and from a string.
+   *
+   * @note You should avoid using an enumeration serializer to handle invalid input from an external
+   *       API as this will force changes in the values to break compatibility.
+   *
+   *       The worst part about this is that adding enumeration values can break old clients and thus
+   *       prevent new backwards-compatible, releases of the API from breaking this client.
+   *
+   *       Instead of validating enumerations for client-side code, consider using a plain old string,
+   *       match on the known cases, and handle unknown cases in a manner that is safe for the future
+   *       addition of values.
+   *
+   *       YOU HAVE BEEN WARNED.
+   *
+   * @param o the [[Enumeration]] object
+   */
+  def enumValueString[E <: Enumeration](o: E): Format[E#Value] = new Format[E#Value] {
+    override def reads(json: JsValue): JsResult[E#Value] = json.validate[String].flatMap { s =>
+      try JsSuccess(o.withName(s))
+      catch {
+        case NonFatal(e) => JsError(e.getMessage)
+      }
+    }
+    override def writes(o: E#Value): JsValue = JsString(o.toString)
+  }
 
   /**
    * Creates a Format for the given type of value by converting it to and from a String.

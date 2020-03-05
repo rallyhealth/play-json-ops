@@ -2,7 +2,6 @@ package play.api.libs.json.ops
 
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.libs.json._
-import play.api.libs.json.ops._
 
 class FormatOpsSpec extends AnyWordSpec {
 
@@ -26,8 +25,38 @@ class FormatOpsSpec extends AnyWordSpec {
       assert(result.isError)
     }
 
-    "not compile when writing a seq" in {
-      assertDoesNotCompile("formatEmpty.writes(Seq())")
+    "not compile when writing an empty seq" in {
+      assertDoesNotCompile {
+        """formatEmptyList.writes(Seq())"""
+      }
+    }
+  }
+
+  "Format.enumValueString" should {
+    val formatEnumString = Format.enumValueString(EnumExample)
+
+    "reads a valid value" in {
+      assertResult(JsSuccess(EnumExample.A)) {
+        formatEnumString.reads(JsString(EnumExample.A.toString))
+      }
+    }
+
+    "fails to read an invalid value" in {
+      assertResult(JsError("No value found for 'ERROR'")) {
+        formatEnumString.reads(JsString("ERROR"))
+      }
+    }
+
+    "writes am enum value" in {
+      assertResult(JsString(EnumExample.A.toString)) {
+        formatEnumString.writes(EnumExample.A)
+      }
+    }
+
+    "not write a string" in {
+      assertDoesNotCompile {
+        """formatEnumString.writes("A")"""
+      }
     }
   }
 
@@ -70,4 +99,8 @@ object PureObjectExample {
 
   val format: Format[PureObjectExample.type] = Format.pure(this, alwaysWritenAs)
   val oformat: OFormat[PureObjectExample.type] = OFormat.pure(this, alwaysWritenAsObject)
+}
+
+object EnumExample extends Enumeration {
+  val A, B, C = Value
 }
