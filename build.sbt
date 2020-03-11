@@ -1,4 +1,5 @@
 import Dependencies._
+import bintry.Version
 
 name := "play-json-ops-root"
 ThisBuild / organization := "com.rallyhealth"
@@ -22,11 +23,25 @@ ThisBuild / resolvers += Resolver.bintrayRepo("rallyhealth", "maven")
 publish := {}
 publishLocal := {}
 
-def commonProject(id: String, scalacVersion: String): Project = {
-  Project(id, file(id)).settings(
+def commonProject(id: String, projectPath: String, scalacVersion: String): Project = {
+  val versionSuffix = scalacVersion match {
+    case Scala_2_11 => "211"
+    case Scala_2_12 => "212"
+    case Scala_2_13 => "213"
+  }
+  val target = s"$id-$versionSuffix"
+  Project(target, file(target)).settings(
     name := id,
 
     scalaVersion := scalacVersion,
+
+    // set the source code directories to the shared project root
+    sourceDirectory := file(s"$projectPath/src").getAbsoluteFile,
+    Compile / sourceDirectory := file(s"$projectPath/src/main").getAbsoluteFile,
+    Test / sourceDirectory := file(s"$projectPath/src/test").getAbsoluteFile,
+
+    // Suppress semver check for libraries that were missed
+    semVerEnforceAfterVersion := Some("3.2.0"),
 
     // Include all of the dependencies in the loader. The base loader will be the Application
     // ClassLoader. All classes apart from system classes will be reloaded with each run instead
@@ -69,11 +84,7 @@ def playJsonOpsCommon(scalacVersion: String, includePlayVersion: String): Projec
   val id = s"play${playSuffix(includePlayVersion)}-json-ops-common"
   val projectPath = "play-json-ops-common"
   val scalaCheckVersion = scalaCheckVersionForPlay(includePlayVersion)
-  commonProject(id, scalacVersion).settings(
-    // set the source code directories to the shared project root
-    sourceDirectory := file(s"$projectPath/src").getAbsoluteFile,
-    Compile / sourceDirectory := file(s"$projectPath/src/main").getAbsoluteFile,
-    Test / sourceDirectory := file(s"$projectPath/src/test").getAbsoluteFile,
+  commonProject(id, projectPath, scalacVersion).settings(
     libraryDependencies ++= Seq(
       playJson(includePlayVersion)
     ) ++ {
@@ -94,8 +105,9 @@ lazy val `play26-json-ops-common-212` = playJsonOpsCommon(Scala_2_12, Play_2_6)
 
 def playJsonOps(scalacVersion: String, includePlayVersion: String): Project = {
   val id = s"play${playSuffix(includePlayVersion)}-json-ops"
+  val projectPath = id
   val scalaCheckVersion = scalaCheckVersionForPlay(includePlayVersion)
-  commonProject(id, scalacVersion)
+  commonProject(id, projectPath, scalacVersion)
     .settings(
       libraryDependencies ++= Seq(
         playJson(includePlayVersion)
@@ -144,11 +156,12 @@ def playJsonTests(scalacVersion: String, includePlayVersion: String, includeScal
     case ScalaCheck_1_14 => "-sc14"
   }
   val id = s"play${playSuffix(includePlayVersion)}-json-tests$scalaCheckSuffix"
-  val projectPath = scalacVersion match {
-    case Scala_2_13 => id // Scala 2.13 has some incompatibilities that require its own source code
+  val projectPath = (includePlayVersion, scalacVersion) match {
+    // Scala 2.13 and ScalaTest 3.1 has some source code incompatibilities that require separate source directories
+    case (_, Scala_2_13) | (Play_2_7, _) => id
     case _ => "play-json-tests-common"
   }
-  commonProject(id, scalacVersion).settings(
+  commonProject(id, projectPath, scalacVersion).settings(
     // set the source code directories to the shared project root
     sourceDirectory := file(s"$projectPath/src").getAbsoluteFile,
     Compile / sourceDirectory := file(s"$projectPath/src/main").getAbsoluteFile,
