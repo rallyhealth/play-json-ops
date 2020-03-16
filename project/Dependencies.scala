@@ -2,13 +2,17 @@ import sbt._
 
 object Dependencies {
 
-  val Play_2_5 = "2.5.18"
-  val Play_2_6 = "2.6.19"
-  val Play_2_7 = "2.7.4"
+  final val Play_2_5 = "2.5.18"
+  final val Play_2_6 = "2.6.19"
+  final val Play_2_7 = "2.7.4"
 
-  val ScalaCheck_1_12 = "1.12.5"
-  val ScalaCheck_1_13 = "1.13.4"
-  val ScalaCheck_1_14 = "1.14.3"
+  final val Scala_2_11 = "2.11.12"
+  final val Scala_2_12 = "2.12.6"
+  final val Scala_2_13 = "2.13.1"
+
+  final val ScalaCheck_1_12 = "1.12.5"
+  final val ScalaCheck_1_13 = "1.13.4"
+  final val ScalaCheck_1_14 = "1.14.3"
 
   private val Play_2_6_JsonVersion = "2.6.10"
   private val ScalaCheckOpsVersion = "2.2.1"
