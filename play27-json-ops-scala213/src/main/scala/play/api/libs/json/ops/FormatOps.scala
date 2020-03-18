@@ -2,11 +2,28 @@ package play.api.libs.json.ops
 
 import play.api.libs.json._
 
-import scala.language.higherKinds
 import scala.reflect._
 import scala.util.control.NonFatal
 
 object FormatOps {
+
+  /**
+   * Extracts the class name of the [[Enumeration]] removing any `$` symbols without throwing an exception.
+   *
+   * @note this will include any outer object or class names separated by `.`s
+   */
+  def enumClassName(o: Enumeration): String = {
+    // This logic is designed to be robust without much noise
+    // 1. use getName to avoid runtime exceptions from getSimpleName
+    // 2. filter out '$' anonymous class / method separators
+    // 3. start the full class name from the first upper-cased outer class name
+    //    (to avoid picking up unnecessary package names)
+    o.getClass.getName
+      .split('.')
+      .last // safe because Class names will never be empty in any realistic scenario
+      .split('$')
+      .mkString(".")
+  }
 
   /**
    * Creates a Format for the given enumeration's values by converting it to and from a string.
@@ -29,7 +46,9 @@ object FormatOps {
     override def reads(json: JsValue): JsResult[E#Value] = json.validate[String].flatMap { s =>
       try JsSuccess(o.withName(s))
       catch {
-        case NonFatal(e) => JsError(e.getMessage)
+        case NonFatal(_) =>
+          val lowerCaseClassName  = enumClassName(o).toLowerCase
+          JsError(s"error.expected.$lowerCaseClassName: No value found for '$s'")
       }
     }
     override def writes(o: E#Value): JsValue = JsString(o.toString)
