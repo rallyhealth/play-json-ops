@@ -42,7 +42,7 @@ class FormatOpsSpec extends AnyWordSpec {
     }
 
     "fails to read an invalid value" in {
-      assertResult(JsError("No value found for 'ERROR'")) {
+      assertResult(JsError("error.expected.enumexample: No value found for 'ERROR'")) {
         formatEnumString.reads(JsString("ERROR"))
       }
     }
