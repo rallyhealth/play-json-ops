@@ -16,10 +16,12 @@ object UseUTC extends UTCFormats {
 
 class UTCFormatSpec extends WordSpec {
 
+  private[this] val pacificTimeZone = DateTimeZone.forID("US/Pacific")
+
   "Json.format by default" should {
     "deserialize with the current time zone" in {
-      val dt = new DateTime
-      assertResult(dt.getZone) {
+      val dt = new DateTime(pacificTimeZone)
+      assertResult(DateTimeZone.getDefault) {
         val notUTC = Json.toJson(NotUTC(dt)).as[NotUTC]
         notUTC.when.getZone
       }
@@ -29,7 +31,7 @@ class UTCFormatSpec extends WordSpec {
   "UTCFormats" should {
 
     "override the standard Format[DateTime]" in {
-      val dt = new DateTime
+      val dt = new DateTime(pacificTimeZone)
       assertResult(DateTimeZone.UTC) {
         val useUTC = Json.toJson(UseUTC(dt)).as[UseUTC]
         useUTC.when.getZone

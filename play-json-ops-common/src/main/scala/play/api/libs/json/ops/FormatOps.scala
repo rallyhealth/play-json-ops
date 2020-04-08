@@ -159,7 +159,7 @@ object FormatOps {
       (implicit
         leftType: ClassTag[Left], rightType: ClassTag[Right],
         leftAsX: Left <:< X,      rightAsX: Right <:< X
-        ): Format[X] = {
+      ): Format[X] = {
       from(jsonIsRight, {
         case leftType(_) => false
         case rightType(_) => true
@@ -200,4 +200,3 @@ object FormatOps {
     }
   }
 }
-
