@@ -9,10 +9,17 @@ import play.api.libs.json._
  * @note this only applies for [[DateTime]] because [[org.joda.time.LocalDateTime]],
  *       [[java.util.Date]], and [[java.sql.Date]] do not carry along the time zone.
  */
+@deprecated(
+  "A better approach is to explicitly convert time zones in your own code when appropriate and use the timezone " +
+    "passed in the JSON string or fallback on one that is configured for the user.  " +
+    "If no timezone is given in the JSON, the default will be the global DateTimeZone.getDefault (which is mutable).  " +
+    "This is not available for Play >2.5 artifacts since 2.0.0 and will be removed when Play 2.5 support is removed.",
+  "3.1.0"
+)
 trait UTCFormats {
 
   /**
-   * A good default for when you don't care about the [[DateTimeZone]] of the server
+   * For when you don't care about the [[DateTimeZone]] of the server
    * that is parsing the [[DateTime]] and prefer to have all dates and times in
    * Universal Coordinated Time (UTC).
    */

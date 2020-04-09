@@ -13,16 +13,7 @@ object FormatOps {
    * @note this will include any outer object or class names separated by `.`s
    */
   def enumClassName(o: Enumeration): String = {
-    // This logic is designed to be robust without much noise
-    // 1. use getName to avoid runtime exceptions from getSimpleName
-    // 2. filter out '$' anonymous class / method separators
-    // 3. start the full class name from the first upper-cased outer class name
-    //    (to avoid picking up unnecessary package names)
-    o.getClass.getName
-      .split('.')
-      .last // safe because Class names will never be empty in any realistic scenario
-      .split('$')
-      .mkString(".")
+    RecoverOps.safeSimpleClassName(o.getClass)
   }
 
   /**

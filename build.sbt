@@ -44,7 +44,7 @@ def commonProject(id: String, projectPath: String, scalacVersion: String): Proje
     classLoaderLayeringStrategy := ClassLoaderLayeringStrategy.Flat,
 
     scalacOptions ++= Seq(
-      "-deprecation",
+      "-deprecation:false",
       "-feature",
       "-Xfatal-warnings",
       "-Ywarn-dead-code",
@@ -82,15 +82,7 @@ def playJsonOpsCommon(scalacVersion: String, includePlayVersion: String): Projec
   commonProject(id, projectPath, scalacVersion).settings(
     libraryDependencies ++= Seq(
       playJson(includePlayVersion)
-    ) ++ {
-      // Test-only dependencies
-      includePlayVersion match {
-        case Play_2_7 => Seq(
-          scalaTest(scalaCheckVersion)
-        )
-        case _ => Seq()
-      }
-    }.map(_ % Test)
+    )
   )
 }
 
@@ -117,8 +109,8 @@ def playJsonOps(scalacVersion: String, includePlayVersion: String): Project = {
           scalaCheckOps(scalaCheckVersion),
           scalaTest(scalaCheckVersion)
         ) ++ {
-          includePlayVersion match {
-            case Play_2_7 => Seq(
+          scalaCheckVersion match {
+            case ScalaCheck_1_14 => Seq(
               scalaTestPlusScalaCheck(scalaCheckVersion)
             )
             case _ => Seq()
