@@ -52,8 +52,10 @@ Pretty much all of these tools become available when you `import `[`play.api.lib
 
 ## Implicits
 
-By importing `play.api.libs.json.ops._`, you get access to implicits that provide:
+By importing `play.api.libs.json.ops._`, you get access to:
 
+* `PlayJsonMacros.nullableReads` macro that will read `null` as `[]` for all container fields of a `case class`
+* `Reads`, `Format`, and `OFormat` extension methods to recover from exceptions
 * Many extension methods for the `play.api.libs.json.Json`
   - `Format.of[A]`, `OFormat.of[A]`, and `OWrites.of[A]` for summoning formats the same as `Reads.of[A]` and `Writes.of[A]`
   - `Format.asEither[A, B]` for reading and writing an either value based on some condition
@@ -63,9 +65,63 @@ By importing `play.api.libs.json.ops._`, you get access to implicits that provid
   - In Play 2.3, the `Json.format` and `Json.writes` macros would return `Format` and `Writes` instead of `OFormat` and
     `OWrites`, even though the macros would only produce these types. The play-json-ops for Play 2.3 provides a `Json.oformat`
     and `Json.owrites` which uses the underlying Play Json macros, but it casts the results.
-* `Reads` and `Writes` for tuple types by writing the result as a `JsArray`
+* `Reads` and `Writes` implicits for tuple types (encoded as a `JsArray`)
 * The `JsValue` extension method `.asOrThrow[A]` which throws a better exception that `.as[A]`
 * And handy syntax for the features listed below
+
+## Tolerant Container Reads Macro
+
+Extending the `TolerantContainerFormats` trait or importing from its companion object will give you the ability to call
+`.readNullableContainer` on a `Reads` instance. This will allow you to parse `null` fields as empty collections.
+
+You can also use `PlayJsonMacros.nullableReads` to create a `Reads` for a `case class` that will accept either `null`
+or missing field values for any container fields (`Seq`, `Set`, `Map`, etc) using the same method.
+
+```scala
+case class Example(values: Seq[Int])
+object Example extends TolerantContainerFormats {
+
+  val nonMacroExample: Reads[Seq[Int]] = (__ \ "values").readNullableContainer[Seq, Int]
+  assert(Json.parse("null").as(nonMacroExample) == JsSuccess(Seq()))
+  assert(Json.parse("[]").as[Example] == JsSuccess(Seq()))
+  assert(Json.parse("[1]").as[Example] == JsSuccess(Seq(1)))
+
+  val macroExample: Reads[Example] = PlayJsonMacros.nullableReads[Example]
+  assert(Json.parse("{}").as(macroExample) == JsSuccess(Example(Seq())))
+  assert(Json.parse("""{"values":null}""").as(macroExample) == JsSuccess(Example(Seq())))
+  assert(Json.parse("""{"values":[]}""").as(macroExample) == JsSuccess(Example(Seq())))
+  assert(Json.parse("""{"values":[1]}""").as(macroExample) == JsSuccess(Example(Seq(1))))
+}
+```
+
+## Reads Recovery Methods
+
+You can call `.recoverJsError`, `.recoverTotal`, or `.recoverWith` on a `Reads`, `Format`, or `OFormat` instance.
+These methods allow you to recover from exceptions thrown during the reading process into an appropriate `JsResult`.
+
+```scala
+object ReadsRecoveryExamples {
+
+  // converts all exceptions into a JsError with the exception captured as an argument in the JsonValidationError
+  val readIntAsString = Reads.of[String].map(_.toInt).recoverJsError
+  assert(readIntAsString.reads("not a number").isError) // no exception thrown
+
+  // converts only the matched exceptions to JsResults, all others continue to throw
+  val invertReader = Reads.of[String].map(1 / _.toDouble).recoverWith {
+    case _: ArithmeticException => JsSuccess(Double.MaxValue) 
+  }
+  invertReader.reads("not a number") // throws NumberFormatException
+  assert(invertReader.reads("0") == JsSuccess(Double.MaxValue)) // handles ArithmeticException
+
+  // converts all exceptions into some value of the right type
+  val readAbsValueOrSentinel = Reads.of[String].map(_.toInt.abs).recoverTotal(_ => -1)
+  assert(readAbsValueOrSentinel.reads("not a number") == JsSuccess(-1))
+
+  // these can be combined, of course
+  val safeInvertReader = invertReader.recoverJsError
+  assert(safeInvertReader.reads("not a number").isError) // no exception thrown
+}
+```
 
 ## Automatic Automated Tests
 
