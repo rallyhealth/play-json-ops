@@ -148,5 +148,5 @@ abstract class PlayJsonFormatTests[T](
    * so it is up to the subclasses to provide a more user-friendly constructor that
    * combines the class with the self-type requirement.
    **/
-
+  
 }
