@@ -162,6 +162,15 @@ def playJsonTests(scalacVersion: String, includePlayVersion: String, includeScal
   }
   commonProject(id, projectPath, scalacVersion).settings(
     Test / scalacOptions -= "-deprecation",
+    
+    //Suppress semver check since we add a new artifact in v3.2.0
+    semVerEnforceAfterVersion := {
+      (scalacVersion, includePlayVersion, includeScalaCheckVersion) match {
+        case (Scala_2_11, Play_2_5, ScalaCheck_1_14) => Some("3.3.0")
+        case _ => None
+      }
+    },
+    
     libraryDependencies ++= Seq(
       scalaCheckOps(includeScalaCheckVersion),
       scalaTest(includeScalaCheckVersion)
