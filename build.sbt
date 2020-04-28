@@ -156,11 +156,21 @@ def playJsonTests(scalacVersion: String, includePlayVersion: String, includeScal
   val id = s"play${playSuffix(includePlayVersion)}-json-tests$scalaCheckSuffix"
   val projectPath = (includePlayVersion, includeScalaCheckVersion) match {
     // Scala 2.13 and ScalaTest 3.1 has some source code incompatibilities that require separate source directories
+    case (Play_2_5, ScalaCheck_1_14) => "play25-json-tests-sc14"
     case (Play_2_7, ScalaCheck_1_14) => "play27-json-tests-sc14"
     case _ => "play-json-tests-common"
   }
   commonProject(id, projectPath, scalacVersion).settings(
     Test / scalacOptions -= "-deprecation",
+    
+    //Suppress semver check since we add a new artifact in v3.2.0
+    semVerEnforceAfterVersion := {
+      (scalacVersion, includePlayVersion, includeScalaCheckVersion) match {
+        case (Scala_2_11, Play_2_5, ScalaCheck_1_14) => Some("3.3.0")
+        case _ => None
+      }
+    },
+    
     libraryDependencies ++= Seq(
       scalaCheckOps(includeScalaCheckVersion),
       scalaTest(includeScalaCheckVersion)
@@ -198,6 +208,7 @@ def playJsonTests(scalacVersion: String, includePlayVersion: String, includeScal
 
 lazy val `play25-json-tests-sc12-211` = playJsonTests(Scala_2_11, Play_2_5, ScalaCheck_1_12)
 lazy val `play25-json-tests-sc13-211` = playJsonTests(Scala_2_11, Play_2_5, ScalaCheck_1_13)
+lazy val `play25-json-tests-sc14-211` = playJsonTests(Scala_2_11, Play_2_5, ScalaCheck_1_14)
 lazy val `play26-json-tests-sc13-211` = playJsonTests(Scala_2_11, Play_2_6, ScalaCheck_1_13)
 lazy val `play26-json-tests-sc13-212` = playJsonTests(Scala_2_12, Play_2_6, ScalaCheck_1_13)
 lazy val `play27-json-tests-sc13-211` = playJsonTests(Scala_2_11, Play_2_7, ScalaCheck_1_14)
