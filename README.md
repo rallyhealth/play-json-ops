@@ -17,6 +17,19 @@ implicits and tools for:
 
 # Versions
 
+## 4.X Branch
+
+| play version | scala versions          | scalatest version | artifact name          | bintray                                                                                                                                                                                     |
+|--------------|-------------------------|-------------------|------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 2.7.x        | 2.13.1, 2.12.6, 2.11.12 |                   | play27-json-ops-v4     | [ ![Download](https://api.bintray.com/packages/rallyhealth/maven/play27-json-ops-v4/images/download.svg) ](https://bintray.com/rallyhealth/maven/play27-json-ops-v4/_latestVersion)         |
+| 2.7.x        | 2.13.1, 2.12.6, 2.11.12 | 3.1.x             | play27-json-tests-sc14 | [ ![Download](https://api.bintray.com/packages/rallyhealth/maven/play27-json-tests-sc14/images/download.svg) ](https://bintray.com/rallyhealth/maven/play27-json-tests-sc14/_latestVersion) |
+| 2.6.x        | 2.12.6, 2.11.12         |                   | play26-json-ops-v4     | [ ![Download](https://api.bintray.com/packages/rallyhealth/maven/play26-json-ops-v4/images/download.svg) ](https://bintray.com/rallyhealth/maven/play26-json-ops-v4/_latestVersion)         |
+| 2.6.x        | 2.12.6, 2.11.12         | 3.0.x             | play26-json-tests-sc13 | [ ![Download](https://api.bintray.com/packages/rallyhealth/maven/play26-json-tests-sc13/images/download.svg) ](https://bintray.com/rallyhealth/maven/play26-json-tests-sc13/_latestVersion) |
+| 2.5.x        | 2.11.12                 |                   | play25-json-ops-v4     | [ ![Download](https://api.bintray.com/packages/rallyhealth/maven/play25-json-ops-v4/images/download.svg) ](https://bintray.com/rallyhealth/maven/play25-json-ops-v4/_latestVersion)         |
+| 2.5.x        | 2.11.12                 | 3.1.x             | play25-json-tests-sc14 | [ ![Download](https://api.bintray.com/packages/rallyhealth/maven/play25-json-tests-sc14/images/download.svg) ](https://bintray.com/rallyhealth/maven/play25-json-tests-sc14/_latestVersion) |
+| 2.5.x        | 2.11.12                 | 3.0.x             | play25-json-tests-sc13 | [ ![Download](https://api.bintray.com/packages/rallyhealth/maven/play25-json-tests-sc13/images/download.svg) ](https://bintray.com/rallyhealth/maven/play25-json-tests-sc13/_latestVersion) |
+| 2.5.x        | 2.11.12                 | 2.2.x             | play25-json-tests-sc12 | [ ![Download](https://api.bintray.com/packages/rallyhealth/maven/play25-json-tests-sc12/images/download.svg) ](https://bintray.com/rallyhealth/maven/play25-json-tests-sc12/_latestVersion) |
+
 ## 3.X Branch
 
 | play version | scala versions          | scalatest version | artifact name   | bintray |

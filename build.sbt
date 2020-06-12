@@ -4,7 +4,7 @@ name := "play-json-ops-root"
 ThisBuild / organization := "com.rallyhealth"
 ThisBuild / organizationName := "Rally Health"
 
-ThisBuild / gitVersioningSnapshotLowerBound := "3.0.0"
+ThisBuild / gitVersioningSnapshotLowerBound := "4.0.0"
 
 ThisBuild / bintrayOrganization := Some("rallyhealth")
 ThisBuild / bintrayRepository := "maven"
@@ -26,7 +26,11 @@ def commonProject(id: String, projectPath: String, scalacVersion: String): Proje
   }
   val target = s"$id-$versionSuffix"
   Project(target, file(target)).settings(
-    name := id,
+    name := {
+      // Shade only non-test jars since they're most exposed to transitive dependency hell.
+      def majorVersion = version.value.split('.').head
+      if (id.contains("test")) id else s"$id-v$majorVersion"
+    },
 
     scalaVersion := scalacVersion,
 
@@ -214,3 +218,5 @@ lazy val `play26-json-tests-sc13-212` = playJsonTests(Scala_2_12, Play_2_6, Scal
 lazy val `play27-json-tests-sc13-211` = playJsonTests(Scala_2_11, Play_2_7, ScalaCheck_1_14)
 lazy val `play27-json-tests-sc13-212` = playJsonTests(Scala_2_12, Play_2_7, ScalaCheck_1_14)
 lazy val `play27-json-tests-sc14-213` = playJsonTests(Scala_2_13, Play_2_7, ScalaCheck_1_14)
+
+Global / onChangedBuildSource := ReloadOnSourceChanges
