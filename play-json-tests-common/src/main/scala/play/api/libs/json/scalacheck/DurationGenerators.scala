@@ -3,7 +3,7 @@ package play.api.libs.json.scalacheck
 import org.scalacheck.{Arbitrary, Gen}
 
 import scala.concurrent.duration._
-import scala.concurrent.duration.ops._
+import scala.concurrent.duration.ops.v4._
 import scala.language.implicitConversions
 
 trait DurationGenerators {
