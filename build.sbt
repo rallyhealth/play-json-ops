@@ -4,8 +4,6 @@ name := "play-json-ops-root"
 ThisBuild / organization := "com.rallyhealth"
 ThisBuild / organizationName := "Rally Health"
 
-ThisBuild / gitVersioningSnapshotLowerBound := "4.0.0"
-
 ThisBuild / bintrayOrganization := Some("rallyhealth")
 ThisBuild / bintrayRepository := "maven"
 

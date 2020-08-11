@@ -32,9 +32,11 @@ private[ops] class JsonImplicits private[ops] extends ImplicitTupleFormats with 
     }
   }
 
-  implicit def writesMap[K: WritesKey, V: Writes]: Writes[Map[K, V]] = {
+  def writesMap[K: WritesKey, V: Writes]: Writes[Map[K, V]] = owritesMap[K, V]
+
+  implicit def owritesMap[K: WritesKey, V: Writes]: OWrites[Map[K, V]] = {
     val writesK = WritesKey.of[K]
     val stringKeyWriter = Writes.map[V]
-    Writes[Map[K, V]](values => stringKeyWriter.writes(values.map { case (k, v) => (writesK.write(k), v) }))
+    OWrites[Map[K, V]](values => stringKeyWriter.writes(values.map { case (k, v) => (writesK.write(k), v) }))
   }
 }
