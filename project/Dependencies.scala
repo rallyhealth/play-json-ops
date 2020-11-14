@@ -5,6 +5,7 @@ object Dependencies {
   final val Play_2_5 = "2.5.18"
   final val Play_2_6 = "2.6.19"
   final val Play_2_7 = "2.7.4"
+  final val Play_2_8 = "2.8.3"
 
   final val Scala_2_11 = "2.11.12"
   final val Scala_2_12 = "2.12.6"
@@ -15,6 +16,7 @@ object Dependencies {
   final val ScalaCheck_1_14 = "1.14.3"
 
   private val Play_2_6_JsonVersion = "2.6.10"
+  private val Play_2_8_JsonVersion = "2.8.1"
   private val ScalaCheckOpsVersion = "2.2.1"
   private val ScalaTest_2 = "2.2.6"
   private val ScalaTest_3 = "3.0.5"
@@ -27,6 +29,7 @@ object Dependencies {
       case Play_2_5 => Play_2_5
       case Play_2_6 => Play_2_6_JsonVersion
       case Play_2_7 => Play_2_7
+      case Play_2_8 => Play_2_8_JsonVersion
     }
     "com.typesafe.play" %% "play-json" % playJsonVersion
   }

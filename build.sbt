@@ -71,18 +71,19 @@ def playSuffix(includePlayVersion: String): String = includePlayVersion match {
   case Play_2_5 => "25"
   case Play_2_6 => "26"
   case Play_2_7 => "27"
+  case Play_2_8 => "28"
 }
 
 def scalaCheckVersionForPlay(includePlayVersion: String): String = includePlayVersion match {
   case Play_2_5 => ScalaCheck_1_12
   case Play_2_6 => ScalaCheck_1_13
   case Play_2_7 => ScalaCheck_1_14
+  case Play_2_8 => ScalaCheck_1_14
 }
 
 def playJsonOpsCommon(scalacVersion: String, includePlayVersion: String): Project = {
   val id = s"play${playSuffix(includePlayVersion)}-json-ops-common"
   val projectPath = "play-json-ops-common"
-  val scalaCheckVersion = scalaCheckVersionForPlay(includePlayVersion)
   commonProject(id, projectPath, scalacVersion).settings(
     libraryDependencies ++= Seq(
       playJson(includePlayVersion)
@@ -120,7 +121,14 @@ def playJsonOps(scalacVersion: String, includePlayVersion: String): Project = {
             case _ => Seq()
           }
         }
-      }.map(_ % Test)
+      }.map(_ % Test),
+      //Suppress semver check for new play 2.8 modules
+      semVerEnforceAfterVersion := {
+        includePlayVersion match {
+          case Play_2_8 => Some("4.1.0")
+          case _ => None
+        }
+      },
     )
     .dependsOn(((scalacVersion, includePlayVersion) match {
       case (Scala_2_11, Play_2_5) => Seq(
@@ -150,6 +158,8 @@ lazy val `play26-json-ops-212` = playJsonOps(Scala_2_12, Play_2_6)
 lazy val `play27-json-ops-211` = playJsonOps(Scala_2_11, Play_2_7)
 lazy val `play27-json-ops-212` = playJsonOps(Scala_2_12, Play_2_7)
 lazy val `play27-json-ops-213` = playJsonOps(Scala_2_13, Play_2_7)
+lazy val `play28-json-ops-212` = playJsonOps(Scala_2_12, Play_2_8)
+lazy val `play28-json-ops-213` = playJsonOps(Scala_2_13, Play_2_8)
 
 def playJsonTests(scalacVersion: String, includePlayVersion: String, includeScalaCheckVersion: String): Project = {
   val scalaCheckSuffix = includeScalaCheckVersion match {
@@ -162,19 +172,20 @@ def playJsonTests(scalacVersion: String, includePlayVersion: String, includeScal
     // Scala 2.13 and ScalaTest 3.1 has some source code incompatibilities that require separate source directories
     case (Play_2_5, ScalaCheck_1_14) => "play25-json-tests-sc14"
     case (Play_2_7, ScalaCheck_1_14) => "play27-json-tests-sc14"
+    case (Play_2_8, ScalaCheck_1_14) => "play28-json-tests-sc14"
     case _ => "play-json-tests-common"
   }
   commonProject(id, projectPath, scalacVersion).settings(
     Test / scalacOptions -= "-deprecation",
-    
-    //Suppress semver check since we add a new artifact in v3.2.0
+
+    //Suppress semver check for new play 2.8 modules
     semVerEnforceAfterVersion := {
       (scalacVersion, includePlayVersion, includeScalaCheckVersion) match {
-        case (Scala_2_11, Play_2_5, ScalaCheck_1_14) => Some("3.3.0")
+        case (_, Play_2_8, _) => Some("4.1.0")
         case _ => None
       }
     },
-    
+
     libraryDependencies ++= Seq(
       scalaCheckOps(includeScalaCheckVersion),
       scalaTest(includeScalaCheckVersion)
@@ -206,6 +217,12 @@ def playJsonTests(scalacVersion: String, includePlayVersion: String, includeScal
     case (Scala_2_13, Play_2_7) => Seq(
       `play27-json-ops-213`
     )
+    case (Scala_2_12, Play_2_8) => Seq(
+      `play28-json-ops-212`
+    )
+    case (Scala_2_13, Play_2_8) => Seq(
+      `play28-json-ops-213`
+    )
     case _ => Seq()
   }).map(_ % Compile): _*)
 }
@@ -218,5 +235,7 @@ lazy val `play26-json-tests-sc13-212` = playJsonTests(Scala_2_12, Play_2_6, Scal
 lazy val `play27-json-tests-sc13-211` = playJsonTests(Scala_2_11, Play_2_7, ScalaCheck_1_14)
 lazy val `play27-json-tests-sc13-212` = playJsonTests(Scala_2_12, Play_2_7, ScalaCheck_1_14)
 lazy val `play27-json-tests-sc14-213` = playJsonTests(Scala_2_13, Play_2_7, ScalaCheck_1_14)
+lazy val `play28-json-tests-sc13-212` = playJsonTests(Scala_2_12, Play_2_8, ScalaCheck_1_14)
+lazy val `play28-json-tests-sc14-213` = playJsonTests(Scala_2_13, Play_2_8, ScalaCheck_1_14)
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
