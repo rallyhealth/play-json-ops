@@ -7,14 +7,21 @@ ThisBuild / organizationName := "Rally Health"
 ThisBuild / bintrayOrganization := Some("rallyhealth")
 ThisBuild / bintrayRepository := "maven"
 
-ThisBuild / licenses := Seq("MIT" -> url("http://opensource.org/licenses/MIT"))
+scalaVersion := Scala_2_13
+ThisBuild / licenses := Seq("MIT" -> url("https://opensource.org/licenses/MIT"))
 
 ThisBuild / resolvers += "Typesafe Releases" at "https://repo.typesafe.com/typesafe/releases/"
 ThisBuild / resolvers += Resolver.bintrayRepo("rallyhealth", "maven")
 
-// don't publish the surrounding multi-project build
-publish := {}
-publishLocal := {}
+// reload sbt when the build files change
+Global / onChangedBuildSource := ReloadOnSourceChanges
+
+// don't publish the aggregate root project
+publish / skip := true
+publishLocal / skip := true
+
+// don't search for previous artifact of the root project
+mimaFailOnNoPrevious := false
 
 def commonProject(id: String, projectPath: String, scalacVersion: String): Project = {
   val versionSuffix = scalacVersion match {
@@ -30,15 +37,15 @@ def commonProject(id: String, projectPath: String, scalacVersion: String): Proje
       if (id.contains("test")) id else s"$id-v$majorVersion"
     },
 
+    // set the Scala version to the given version
     scalaVersion := scalacVersion,
 
+    // verify binary compatibility
+    mimaPreviousArtifacts := Set(organization.value %% name.value % "4.1.0"),
+
     // set the source code directories to the shared project root
-    sourceDirectory := file(s"$projectPath/src").getAbsoluteFile,
     Compile / sourceDirectory := file(s"$projectPath/src/main").getAbsoluteFile,
     Test / sourceDirectory := file(s"$projectPath/src/test").getAbsoluteFile,
-
-    // Suppress semver check for libraries that were missed
-    semVerEnforceAfterVersion := Some("3.2.0"),
 
     // Include all of the dependencies in the loader. The base loader will be the Application
     // ClassLoader. All classes apart from system classes will be reloaded with each run instead
@@ -62,7 +69,7 @@ def commonProject(id: String, projectPath: String, scalacVersion: String): Proje
     // disable publishing empty ScalaDocs
     Compile / packageDoc / publishArtifact := false
 
-  ).enablePlugins(SemVerPlugin)
+  )
 }
 
 def playSuffix(includePlayVersion: String): String = includePlayVersion match {
@@ -120,13 +127,6 @@ def playJsonOps(scalacVersion: String, includePlayVersion: String): Project = {
           }
         }
       }.map(_ % Test),
-      //Suppress semver check for new play 2.8 modules
-      semVerEnforceAfterVersion := {
-        includePlayVersion match {
-          case Play_2_8 => Some("4.1.0")
-          case _ => None
-        }
-      },
     )
     .dependsOn(((scalacVersion, includePlayVersion) match {
       case (Scala_2_11, Play_2_5) => Seq(
@@ -175,14 +175,6 @@ def playJsonTests(scalacVersion: String, includePlayVersion: String, includeScal
   }
   commonProject(id, projectPath, scalacVersion).settings(
     Test / scalacOptions -= "-deprecation",
-
-    //Suppress semver check for new play 2.8 modules
-    semVerEnforceAfterVersion := {
-      (scalacVersion, includePlayVersion, includeScalaCheckVersion) match {
-        case (_, Play_2_8, _) => Some("4.1.0")
-        case _ => None
-      }
-    },
 
     libraryDependencies ++= Seq(
       scalaCheckOps(includeScalaCheckVersion),
@@ -235,5 +227,3 @@ lazy val `play27-json-tests-sc13-212` = playJsonTests(Scala_2_12, Play_2_7, Scal
 lazy val `play27-json-tests-sc14-213` = playJsonTests(Scala_2_13, Play_2_7, ScalaCheck_1_14)
 lazy val `play28-json-tests-sc13-212` = playJsonTests(Scala_2_12, Play_2_8, ScalaCheck_1_14)
 lazy val `play28-json-tests-sc14-213` = playJsonTests(Scala_2_13, Play_2_8, ScalaCheck_1_14)
-
-Global / onChangedBuildSource := ReloadOnSourceChanges
