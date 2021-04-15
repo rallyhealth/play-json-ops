@@ -11,8 +11,6 @@ import play.api.libs.json.{Json, OFormat}
 import play.api.libs.json.scalacheck.PlayJsonFormatFlatSpecExample.SampleException
 import play.api.libs.json.scalatest.PlayJsonFormatSpec
 
-import scala.language.implicitConversions
-
 case class Example(value: String, nested: Seq[Example])
 
 object Example {
@@ -104,7 +102,7 @@ with ScalaCheckDrivenPropertyChecks {
   }
 
   "PlayJsonFormatFlatSpecExample.shrink" should "use the implicit shrink" in {
-    val example = Arbitrary.arbitrary[Example].suchThat(_.nested.nonEmpty).getOrThrow
+    val example = genExample(1).randomOrThrow()
     val ex = intercept[TestFailedException] {
       val expected = example.copy(nested = Seq())
       assertSameWithShrink(expected, example, Json.toJson(example))

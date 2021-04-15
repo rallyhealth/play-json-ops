@@ -7,16 +7,14 @@ import org.scalatest.exceptions.TestFailedException
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import org.scalatest.flatspec.AnyFlatSpecLike
 import org.scalatest.matchers.should.Matchers
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 import play.api.libs.json.scalacheck.PlayJsonFormatFlatSpecExample.SampleException
 import play.api.libs.json.scalatest.PlayJsonFormatSpec
-
-import scala.language.implicitConversions
 
 case class Example(value: String, nested: Seq[Example])
 
 object Example {
-  implicit val format = Json.format[Example]
+  implicit val format: OFormat[Example] = Json.format[Example]
 }
 
 trait PlayJsonExampleGenerators {
@@ -81,7 +79,7 @@ with ScalaCheckDrivenPropertyChecks {
     a[TestFailedException] shouldBe thrownBy {
       fail(reason)
     }
-    assert(lastFailReason == Some(reason))
+    assert(lastFailReason.contains(reason))
   }
 
   it should "call the doFail method when providing a cause" in {
@@ -89,7 +87,7 @@ with ScalaCheckDrivenPropertyChecks {
     a[TestFailedException] shouldBe thrownBy {
       fail(SampleException)
     }
-    assert(lastFailCause == Some(SampleException))
+    assert(lastFailCause.contains(SampleException))
   }
 
   it should "call the doFail method when providing both a reason and a cause" in {
@@ -99,12 +97,12 @@ with ScalaCheckDrivenPropertyChecks {
     a[TestFailedException] shouldBe thrownBy {
       fail(reason, SampleException)
     }
-    assert(lastFailCause == Some(SampleException))
-    assert(lastFailReason == Some(reason))
+    assert(lastFailCause.contains(SampleException))
+    assert(lastFailReason.contains(reason))
   }
 
   "PlayJsonFormatFlatSpecExample.shrink" should "use the implicit shrink" in {
-    val example = Arbitrary.arbitrary[Example].suchThat(_.nested.nonEmpty).getOrThrow
+    val example = genExample(1).randomOrThrow()
     val ex = intercept[TestFailedException] {
       val expected = example.copy(nested = Seq())
       assertSameWithShrink(expected, example, Json.toJson(example))
