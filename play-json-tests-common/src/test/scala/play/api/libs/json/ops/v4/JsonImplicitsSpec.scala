@@ -3,7 +3,7 @@ package play.api.libs.json.ops.v4
 import org.scalacheck.{Arbitrary, Gen, Shrink}
 import org.scalacheck.ops._
 import org.scalatest.FreeSpec
-import play.api.libs.json.{Format, Json}
+import play.api.libs.json.{Format, Json, OWrites, Writes}
 import org.scalatest.prop.GeneratorDrivenPropertyChecks._
 
 case class KeyWrapper(key: String)
@@ -58,5 +58,13 @@ class JsonImplicitsSpec extends FreeSpec {
       }
       assertResult(keyWrappedMap)(parsedMap)
     }
+  }
+
+  "implicit Writes[Map[Int, String]] should be in scope" in {
+    implicitly[Writes[Map[Int, String]]]
+  }
+
+  "implicit OWrites[Map[Int, String]] should be in scope" in {
+    implicitly[OWrites[Map[Int, String]]]
   }
 }
