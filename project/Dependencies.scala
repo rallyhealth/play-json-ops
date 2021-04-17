@@ -19,10 +19,10 @@ object Dependencies {
   private val Play_2_7_JsonVersion = "2.7.4"
   private val Play_2_8_JsonVersion = "2.8.1"
   private val ScalaCheckOpsVersion = "2.6.0"
+  private val ScalaParallelCollectionsVersion = "1.0.2"
   private val ScalaTest_2 = "2.2.6"
   private val ScalaTest_3 = "3.0.5"
   private val ScalaTest_3_2 = "3.2.7"
-
   private val ScalaTestPlusScalaCheckVersion = "3.2.0.0"
 
   def playJson(playVersion: String): ModuleID = {
@@ -44,6 +44,13 @@ object Dependencies {
     "com.rallyhealth" %% s"scalacheck-ops$suffix" % ScalaCheckOpsVersion
   }
 
+  def scalaParallelCollections(scalaVersion: String): Seq[ModuleID] = scalaVersion match {
+    case Scala_2_13 => Seq(
+      "org.scala-lang.modules" %% "scala-parallel-collections" % ScalaParallelCollectionsVersion
+    )
+    case _ => Seq()
+  }
+
   def scalaTest(scalaCheckVersion: String): ModuleID = {
     val version = scalaCheckVersion match {
       case ScalaCheck_1_12 => ScalaTest_2
@@ -53,11 +60,11 @@ object Dependencies {
     "org.scalatest" %% "scalatest" % version
   }
 
-  def scalaTestPlusScalaCheck(scalaCheckVersion: String): ModuleID = {
-    val version = scalaCheckVersion match {
-      case ScalaCheck_1_14 => ScalaTestPlusScalaCheckVersion
-    }
-    "org.scalatestplus" %% "scalacheck-1-14" % version
+  def scalaTestPlusScalaCheck(scalaCheckVersion: String): Seq[ModuleID] = scalaCheckVersion match {
+    case ScalaCheck_1_14 => Seq(
+      "org.scalatestplus" %% "scalacheck-1-14" % ScalaTestPlusScalaCheckVersion
+    )
+    case _ => Seq()
   }
 
 }
