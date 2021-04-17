@@ -2,6 +2,7 @@ package play.api.libs.json.scalatest
 
 import org.scalacheck.ops._
 import org.scalacheck.{Arbitrary, Gen, Shrink}
+import org.scalatest.Tag
 import org.scalatest.flatspec.AnyFlatSpecLike
 import play.api.libs.json.Format
 import play.api.libs.json.scalacheck.PlayJsonFormatTests
@@ -23,8 +24,12 @@ class PlayJsonFormatSpec[T](examples: Seq[T])(implicit playFormat: Format[T], cl
   with AnyFlatSpecLike
   with ScalaTestBridge {
 
+  override def registerTest(testText: String, testTags: Tag*)(testFun: => Unit): Unit = {
+    super[AnyFlatSpecLike].registerTest(testText, testTags: _*)(testFun)
+  }
+
   def this(gen: Gen[T], samples: Int)(implicit playFormat: Format[T], clsTag: ClassTag[T], shrink: Shrink[T]) =
-    this(gen.iterator.take(samples).toSeq)
+    this(gen.toIterator.take(samples).toSeq)
 
   def this(gen: Gen[T])(implicit playFormat: Format[T], clsTag: ClassTag[T], shrink: Shrink[T]) = this(gen, 100)
 

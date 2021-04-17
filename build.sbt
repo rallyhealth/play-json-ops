@@ -41,7 +41,7 @@ def commonProject(id: String, projectPath: String, scalacVersion: String): Proje
     scalaVersion := scalacVersion,
 
     // verify binary compatibility
-    mimaPreviousArtifacts := Set(organization.value %% name.value % "4.1.0"),
+    mimaPreviousArtifacts := Set(organization.value %% name.value % "4.2.0"),
 
     // set the source code directories to the shared project root
     Compile / sourceDirectory := file(s"$projectPath/src/main").getAbsoluteFile,
@@ -88,7 +88,10 @@ def scalaCheckVersionForPlay(includePlayVersion: String): String = includePlayVe
 
 def playJsonOpsCommon(scalacVersion: String, includePlayVersion: String): Project = {
   val id = s"play${playSuffix(includePlayVersion)}-json-ops-common"
-  val projectPath = "play-json-ops-common"
+  val projectPath = scalacVersion match {
+    case Scala_2_13 => "play-json-ops-common-213"
+    case _ => "play-json-ops-common"
+  }
   commonProject(id, projectPath, scalacVersion).settings(
     libraryDependencies ++= Seq(
       playJson(includePlayVersion)
@@ -102,10 +105,27 @@ lazy val `play26-json-ops-common-212` = playJsonOpsCommon(Scala_2_12, Play_2_6)
 lazy val `play27-json-ops-common-211` = playJsonOpsCommon(Scala_2_11, Play_2_7)
 lazy val `play27-json-ops-common-212` = playJsonOpsCommon(Scala_2_12, Play_2_7)
 
+// TODO: Use play27-json-ops-common-213 in the next major version
+// For binary compatibility, we must keep a copy of the original code of play27-json-ops,
+// and cannot use this common project
+// lazy val `play27-json-ops-common-213` = playJsonOpsCommon(Scala_2_13, Play_2_7)
+
+lazy val `play28-json-ops-common-212` = playJsonOpsCommon(Scala_2_12, Play_2_8)
+  .settings( // ignore binary compatibility checking until we have a previous release artifact for Play 2.8
+    mimaPreviousArtifacts := Set(),
+    mimaFailOnNoPrevious := false,
+  )
+lazy val `play28-json-ops-common-213` = playJsonOpsCommon(Scala_2_13, Play_2_8)
+  .settings( // ignore binary compatibility checking until we have a previous release artifact for Play 2.8
+    mimaPreviousArtifacts := Set(),
+    mimaFailOnNoPrevious := false,
+  )
+
 def playJsonOps(scalacVersion: String, includePlayVersion: String): Project = {
   val id = s"play${playSuffix(includePlayVersion)}-json-ops"
-  val projectPath = scalacVersion match {
-    case Scala_2_13 => s"play${playSuffix(includePlayVersion)}-json-ops-scala213"
+  val projectPath = (includePlayVersion, scalacVersion) match {
+    // This project was created with its own source code, rather than sharing a common project
+    case (Play_2_7, Scala_2_13) => s"play${playSuffix(includePlayVersion)}-json-ops-scala213"
     case _ => id
   }
   val scalaCheckVersion = scalaCheckVersionForPlay(includePlayVersion)
@@ -118,14 +138,7 @@ def playJsonOps(scalacVersion: String, includePlayVersion: String): Project = {
         Seq(
           scalaCheckOps(scalaCheckVersion),
           scalaTest(scalaCheckVersion)
-        ) ++ {
-          scalaCheckVersion match {
-            case ScalaCheck_1_14 => Seq(
-              scalaTestPlusScalaCheck(scalaCheckVersion)
-            )
-            case _ => Seq()
-          }
-        }
+        ) ++ scalaTestPlusScalaCheck(scalaCheckVersion)
       }.map(_ % Test),
     )
     .dependsOn(((scalacVersion, includePlayVersion) match {
@@ -144,7 +157,16 @@ def playJsonOps(scalacVersion: String, includePlayVersion: String): Project = {
       case (Scala_2_12, Play_2_7) => Seq(
         `play27-json-ops-common-212`
       )
-      case _ => Seq()
+      case (Scala_2_13, Play_2_7) => Seq(
+        // For binary compatibility, we must keep a copy of the original code, and cannot use the common project
+        // TODO: Use play27-json-ops-common-213 in the next major version
+      )
+      case (Scala_2_12, Play_2_8) => Seq(
+        `play28-json-ops-common-212`
+      )
+      case (Scala_2_13, Play_2_8) => Seq(
+        `play28-json-ops-common-213`
+      )
     }).map(_ % Compile): _*)
 }
 
@@ -176,17 +198,14 @@ def playJsonTests(scalacVersion: String, includePlayVersion: String, includeScal
   commonProject(id, projectPath, scalacVersion).settings(
     Test / scalacOptions -= "-deprecation",
 
-    libraryDependencies ++= Seq(
-      scalaCheckOps(includeScalaCheckVersion),
-      scalaTest(includeScalaCheckVersion)
-    ) ++ {
+    libraryDependencies ++= {
+      Seq(
+        scalaCheckOps(includeScalaCheckVersion),
+        scalaTest(includeScalaCheckVersion),
+      ) ++ scalaParallelCollections(scalacVersion)
+    } ++ {
       // Test-only dependencies
-      includeScalaCheckVersion match {
-        case ScalaCheck_1_14 => Seq(
-          scalaTestPlusScalaCheck(includeScalaCheckVersion)
-        )
-        case _ => Seq()
-      }
+      scalaTestPlusScalaCheck(includeScalaCheckVersion)
     }.map(_ % Test)
   ).dependsOn(((scalacVersion, includePlayVersion) match {
     case (Scala_2_11, Play_2_5) => Seq(
@@ -213,7 +232,6 @@ def playJsonTests(scalacVersion: String, includePlayVersion: String, includeScal
     case (Scala_2_13, Play_2_8) => Seq(
       `play28-json-ops-213`
     )
-    case _ => Seq()
   }).map(_ % Compile): _*)
 }
 

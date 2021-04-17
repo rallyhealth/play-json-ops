@@ -2,7 +2,6 @@ package play.api.libs.json.ops.v4
 
 import play.api.libs.json._
 
-import scala.language.higherKinds
 import scala.reflect._
 import scala.util.control.NonFatal
 
@@ -14,16 +13,7 @@ object FormatOps {
    * @note this will include any outer object or class names separated by `.`s
    */
   def enumClassName(o: Enumeration): String = {
-    // This logic is designed to be robust without much noise
-    // 1. use getName to avoid runtime exceptions from getSimpleName
-    // 2. filter out '$' anonymous class / method separators
-    // 3. start the full class name from the first upper-cased outer class name
-    //    (to avoid picking up unnecessary package names)
-    o.getClass.getName
-      .split('.')
-      .last // safe because Class names will never be empty in any realistic scenario
-      .split('$')
-      .mkString(".")
+    ClassNameUtils.safeSimpleClassName(o.getClass)
   }
 
   /**
@@ -72,6 +62,7 @@ object FormatOps {
     )
   }
 
+
   /**
    * Creates a format for an empty collection type, such as Nil.type.
    *
@@ -79,22 +70,18 @@ object FormatOps {
    * where the compiler cannot infer the item type of the collection.
    *
    * @param empty the value when empty
-   * @tparam C the collection type
+   * @tparam C the empty collection type (can be a singleton)
    * @return a Format that will always write an empty JsArray() and read the given empty value.
    */
-  @deprecated(
-    "You should not need this, since an implicit Reads[Iterable[Nothing]] is available from " +
-      "import play.api.libs.json.ops._",
-    "3.0.0")
-  def empty[C[x] <: Traversable[x]](empty: C[Nothing]): Format[C[Nothing]] = {
-    new Format[C[Nothing]] {
-      override def reads(json: JsValue): JsResult[C[Nothing]] = {
+  def empty[C <: Iterable[Nothing]](empty: C): Format[C] = {
+    new Format[C] {
+      override def reads(json: JsValue): JsResult[C] = {
         Reads.traversableReads[Seq, JsValue].reads(json).flatMap {
           case Seq() => JsSuccess(empty)
           case _ => JsError("expected.jsarray.empty")
         }
       }
-      override def writes(o: C[Nothing]): JsValue = JsArray()
+      override def writes(o: C): JsValue = JsArray()
     }
   }
 
@@ -159,7 +146,7 @@ object FormatOps {
       (implicit
         leftType: ClassTag[Left], rightType: ClassTag[Right],
         leftAsX: Left <:< X,      rightAsX: Right <:< X
-      ): Format[X] = {
+        ): Format[X] = {
       from(jsonIsRight, {
         case leftType(_) => false
         case rightType(_) => true
@@ -200,3 +187,4 @@ object FormatOps {
     }
   }
 }
+
