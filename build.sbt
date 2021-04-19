@@ -1,24 +1,28 @@
 import Dependencies._
 
 name := "play-json-ops-root"
+scalaVersion := Scala_2_13
+
 ThisBuild / organization := "com.rallyhealth"
 ThisBuild / organizationName := "Rally Health"
 
-ThisBuild / bintrayOrganization := Some("rallyhealth")
-ThisBuild / bintrayRepository := "maven"
-
-scalaVersion := Scala_2_13
+ThisBuild / versionScheme := Some("early-semver")
 ThisBuild / licenses := Seq("MIT" -> url("https://opensource.org/licenses/MIT"))
 
+ThisBuild / homepage := Some(url("https://github.com/rallyhealth/play-json-ops"))
+ThisBuild / developers := List(
+  Developer(id = "jeffmay", name = "Jeff May", email = "jeff.n.may@gmail.com", url = url("https://github.com/jeffmay")),
+)
+
 ThisBuild / resolvers += "Typesafe Releases" at "https://repo.typesafe.com/typesafe/releases/"
+// TODO: This is still needed for MiMa binary compatibility checking, but can be removed on the next version
 ThisBuild / resolvers += Resolver.bintrayRepo("rallyhealth", "maven")
 
 // reload sbt when the build files change
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
 // don't publish the aggregate root project
-publish / skip := true
-publishLocal / skip := true
+skip / publish := true
 
 // don't search for previous artifact of the root project
 mimaFailOnNoPrevious := false
