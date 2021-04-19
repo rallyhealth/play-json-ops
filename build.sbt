@@ -1,13 +1,30 @@
 name := "play-json-ops-root"
-organization in ThisBuild := "me.jeffmay"
-organizationName in ThisBuild := "Jeff May"
 
-version in ThisBuild := "2.0.0"
-scalaVersion in ThisBuild := "2.11.11"
+val Scala_2_11 = "2.11.11"
 
-// don't publish the surrounding multi-project build
-publish := {}
-publishLocal := {}
+ThisBuild / scalaVersion := Scala_2_11
+
+ThisBuild / organization := "com.rallyhealth"
+ThisBuild / organizationName := "Rally Health"
+
+ThisBuild / versionScheme := Some("early-semver")
+ThisBuild / licenses := Seq("MIT" -> url("https://opensource.org/licenses/MIT"))
+
+ThisBuild / homepage := Some(url("https://github.com/rallyhealth/play-json-ops"))
+ThisBuild / developers := List(
+  Developer(id = "jeffmay", name = "Jeff May", email = "jeff.n.may@gmail.com", url = url("https://github.com/jeffmay")),
+)
+
+ThisBuild / resolvers += "Typesafe Releases" at "https://repo.typesafe.com/typesafe/releases/"
+
+// reload sbt when the build files change
+Global / onChangedBuildSource := ReloadOnSourceChanges
+
+// don't publish the aggregate root project
+publish / skip := true
+
+// don't search for previous artifact of the root project
+ThisBuild / mimaFailOnNoPrevious := false
 
 def commonProject(id: String): Project = {
   Project(id, file(id)).settings(
@@ -21,26 +38,14 @@ def commonProject(id: String): Project = {
       "-encoding", "UTF-8"
     ),
 
-    resolvers ++= Seq(
-      "Typesafe Releases" at "http://repo.typesafe.com/typesafe/releases/",
-      "jeffmay at bintray" at "https://dl.bintray.com/jeffmay/maven"
-    ),
-
-    ivyScala := ivyScala.value map {
-      _.copy(overrideScalaVersion = true)
-    },
-
     // don't publish the test code as an artifact anymore, since we have playJsonTests
-    publishArtifact in Test := false,
+    Test / publishArtifact := false,
 
     // disable compilation of ScalaDocs, since this always breaks on links
-    sources in(Compile, doc) := Seq.empty,
+    Compile / doc / sources := Seq.empty,
 
     // disable publishing empty ScalaDocs
-    publishArtifact in(Compile, packageDoc) := false,
-
-    licenses += ("Apache-2.0", url("http://opensource.org/licenses/apache-2.0"))
-
+    Compile / packageDoc / publishArtifact := false
   )
 }
 
@@ -73,9 +78,8 @@ def playJsonTests(includePlayVersion: String, includeScalatestVersion: String): 
   val projectPath = s"play$playSuffix-json-tests"
   commonProject(id).settings(
     // set the source code directories to the shared project root
-    sourceDirectory := file(s"$projectPath/src").getAbsoluteFile,
-    (sourceDirectory in Compile) := file(s"$projectPath/src/main").getAbsoluteFile,
-    (sourceDirectory in Test) := file(s"$projectPath/src/test").getAbsoluteFile,
+    (Compile / sourceDirectory) := file(s"$projectPath/src/main").getAbsoluteFile,
+    (Test / sourceDirectory) := file(s"$projectPath/src/test").getAbsoluteFile,
     libraryDependencies ++= Seq(
       Dependencies.scalatest(includeScalatestVersion),
       Dependencies.scalacheckOps(includeScalatestVersion)
