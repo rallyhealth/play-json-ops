@@ -15,8 +15,6 @@ ThisBuild / developers := List(
 )
 
 ThisBuild / resolvers += "Typesafe Releases" at "https://repo.typesafe.com/typesafe/releases/"
-// TODO: This is still needed for MiMa binary compatibility checking, but can be removed on the next version
-ThisBuild / resolvers += Resolver.bintrayRepo("rallyhealth", "maven")
 
 // reload sbt when the build files change
 Global / onChangedBuildSource := ReloadOnSourceChanges
@@ -45,7 +43,7 @@ def commonProject(id: String, projectPath: String, scalacVersion: String): Proje
     scalaVersion := scalacVersion,
 
     // verify binary compatibility
-    mimaPreviousArtifacts := Set(organization.value %% name.value % "4.2.0"),
+    mimaPreviousArtifacts := Set(organization.value %% name.value % "4.4.0"),
 
     // set the source code directories to the shared project root
     Compile / sourceDirectory := file(s"$projectPath/src/main").getAbsoluteFile,
