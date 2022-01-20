@@ -1,19 +1,17 @@
 language: scala
 scala:
-  - 2.13.5
+  - 2.13.8
 jdk:
   - openjdk8
   - openjdk11
 
 before_script:
   # Download sbt because Travis can't find it automatically :(
-  - mkdir -p $HOME/.sbt/launchers/1.5.0/
-  - curl -L -o $HOME/.sbt/launchers/1.5.0/sbt-launch.jar https://repo1.maven.org/maven2/org/scala-sbt/sbt-launch/1.5.0/sbt-launch-1.5.0.jar
+  - mkdir -p $HOME/.sbt/launchers/1.6.1/
+  - curl --location --output $HOME/.sbt/launchers/1.6.1/sbt-launch.jar https://repo1.maven.org/maven2/org/scala-sbt/sbt-launch/1.6.1/sbt-launch-1.6.1.jar
 
 script:
   - sbt clean coverage +test coverageAggregate
-  # Upload coverage reports to codecov.io before checking for binary compatibility
-  - bash <(curl -s https://codecov.io/bash)
   - sbt +mimaReportBinaryIssues
 
 # Avoid unnecessary cache updates
