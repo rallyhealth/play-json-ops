@@ -12,8 +12,6 @@ before_script:
 
 script:
   - sbt clean coverage +test coverageAggregate
-  # Upload coverage reports to codecov.io before checking for binary compatibility
-  - bash <(curl -s https://codecov.io/bash)
   - sbt +mimaReportBinaryIssues
 
 # Avoid unnecessary cache updates
