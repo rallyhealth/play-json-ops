@@ -1,9 +1,9 @@
-[![Build Status](https://travis-ci.org/rallyhealth/play-json-ops.svg?branch=master)](https://travis-ci.org/rallyhealth/play-json-ops)
-[![codecov](https://codecov.io/gh/rallyhealth/play-json-ops/branch/master/graph/badge.svg)](https://codecov.io/gh/rallyhealth/play-json-ops)
+[![Build Status](https://img.shields.io/travis/com/rallyhealth/play-json-ops)](https://app.travis-ci.com/github/rallyhealth/play-json-ops)
+[![CodeCov](https://img.shields.io/codecov/c/github/rallyhealth/play-json-ops)](https://codecov.io/gh/rallyhealth/play-json-ops)
 
 # Play Json Ops
 
-Augments the [Play Json library](https://www.playframework.com/documentation/2.7.x/ScalaJson) with some helpful
+Augments the [Play Json library](https://www.playframework.com/documentation/2.8.x/ScalaJson) with some helpful
 implicits and tools for:
 
 - Creating formats for traits and abstract classes
@@ -19,46 +19,26 @@ implicits and tools for:
 
 ## 4.X Branch
 
-| play version | scala versions          | scalatest version | artifact name          | bintray                                                                                                                                                                                     |
-|--------------|-------------------------|-------------------|------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| 2.8.x        | 2.13.1, 2.12.6, 2.11.12 |                   | play28-json-ops-v4     | [ ![Download](https://api.bintray.com/packages/rallyhealth/maven/play28-json-ops-v4/images/download.svg) ](https://bintray.com/rallyhealth/maven/play28-json-ops-v4/_latestVersion)         |
-| 2.8.x        | 2.13.1, 2.12.6, 2.11.12 | 3.1.x             | play28-json-tests-sc14 | [ ![Download](https://api.bintray.com/packages/rallyhealth/maven/play28-json-tests-sc14/images/download.svg) ](https://bintray.com/rallyhealth/maven/play28-json-tests-sc14/_latestVersion) |
-| 2.7.x        | 2.13.1, 2.12.6, 2.11.12 |                   | play27-json-ops-v4     | [ ![Download](https://api.bintray.com/packages/rallyhealth/maven/play27-json-ops-v4/images/download.svg) ](https://bintray.com/rallyhealth/maven/play27-json-ops-v4/_latestVersion)         |
-| 2.7.x        | 2.13.1, 2.12.6, 2.11.12 | 3.1.x             | play27-json-tests-sc14 | [ ![Download](https://api.bintray.com/packages/rallyhealth/maven/play27-json-tests-sc14/images/download.svg) ](https://bintray.com/rallyhealth/maven/play27-json-tests-sc14/_latestVersion) |
-| 2.6.x        | 2.12.6, 2.11.12         |                   | play26-json-ops-v4     | [ ![Download](https://api.bintray.com/packages/rallyhealth/maven/play26-json-ops-v4/images/download.svg) ](https://bintray.com/rallyhealth/maven/play26-json-ops-v4/_latestVersion)         |
-| 2.6.x        | 2.12.6, 2.11.12         | 3.0.x             | play26-json-tests-sc13 | [ ![Download](https://api.bintray.com/packages/rallyhealth/maven/play26-json-tests-sc13/images/download.svg) ](https://bintray.com/rallyhealth/maven/play26-json-tests-sc13/_latestVersion) |
-| 2.5.x        | 2.11.12                 |                   | play25-json-ops-v4     | [ ![Download](https://api.bintray.com/packages/rallyhealth/maven/play25-json-ops-v4/images/download.svg) ](https://bintray.com/rallyhealth/maven/play25-json-ops-v4/_latestVersion)         |
-| 2.5.x        | 2.11.12                 | 3.1.x             | play25-json-tests-sc14 | [ ![Download](https://api.bintray.com/packages/rallyhealth/maven/play25-json-tests-sc14/images/download.svg) ](https://bintray.com/rallyhealth/maven/play25-json-tests-sc14/_latestVersion) |
-| 2.5.x        | 2.11.12                 | 3.0.x             | play25-json-tests-sc13 | [ ![Download](https://api.bintray.com/packages/rallyhealth/maven/play25-json-tests-sc13/images/download.svg) ](https://bintray.com/rallyhealth/maven/play25-json-tests-sc13/_latestVersion) |
-| 2.5.x        | 2.11.12                 | 2.2.x             | play25-json-tests-sc12 | [ ![Download](https://api.bintray.com/packages/rallyhealth/maven/play25-json-tests-sc12/images/download.svg) ](https://bintray.com/rallyhealth/maven/play25-json-tests-sc12/_latestVersion) |
+| play version | scala versions | scalatest version | artifact name | artifact link |
+| :---: | :---------------------: | :---: | :---------------------: | :-----------: |
+| 2.8.x | 2.13.5, 2.12.6, 2.11.12 |       | play28-json-ops-v4      | ![Download](https://maven-badges.herokuapp.com/maven-central/com.rallyhealth/play28-json-ops-v4_2.13/badge.svg?style=flat) |
+| 2.8.x | 2.13.5, 2.12.6, 2.11.12 | 3.2.x | play28-json-tests-sc14  | ![Download](https://maven-badges.herokuapp.com/maven-central/com.rallyhealth/play28-json-tests-sc14_2.13/badge.svg?style=flat) |
+| 2.7.x | 2.13.5, 2.12.6, 2.11.12 |       | play27-json-ops-v4      | ![Download](https://maven-badges.herokuapp.com/maven-central/com.rallyhealth/play27-json-ops-v4_2.13/badge.svg?style=flat) |
+| 2.7.x | 2.13.5, 2.12.6, 2.11.12 | 3.2.x | play27-json-tests-sc14  | ![Download](https://maven-badges.herokuapp.com/maven-central/com.rallyhealth/play27-json-tests-sc14_2.13/badge.svg?style=flat) |
+| 2.6.x | 2.12.6, 2.11.12         |       | play26-json-ops-v4      | ![Download](https://maven-badges.herokuapp.com/maven-central/com.rallyhealth/play26-json-ops-v4_2.12/badge.svg?style=flat) |
+| 2.6.x | 2.12.6, 2.11.12         | 3.0.x | play26-json-tests-sc13  | ![Download](https://maven-badges.herokuapp.com/maven-central/com.rallyhealth/play26-json-tests-sc13_2.12/badge.svg?style=flat) |
+| 2.5.x | 2.11.12                 |       | play25-json-ops-v4      | ![Download](https://maven-badges.herokuapp.com/maven-central/com.rallyhealth/play25-json-ops-v4_2.11/badge.svg?style=flat) |
+| 2.5.x | 2.11.12                 | 3.1.x | play25-json-tests-sc14  | ![Download](https://maven-badges.herokuapp.com/maven-central/com.rallyhealth/play25-json-tests-sc14_2.11/badge.svg?style=flat) |
+| 2.5.x | 2.11.12                 | 3.0.x | play25-json-tests-sc13  | ![Download](https://maven-badges.herokuapp.com/maven-central/com.rallyhealth/play25-json-tests-sc13_2.11/badge.svg?style=flat) |
+| 2.5.x | 2.11.12                 | 2.2.x | play25-json-tests-sc12  | ![Download](https://maven-badges.herokuapp.com/maven-central/com.rallyhealth/play25-json-tests-sc12_2.11/badge.svg?style=flat) |
 
-## 3.X Branch
+## 3.X / 2.X Branches
 
-| play version | scala versions          | scalatest version | artifact name   | bintray |
-| ------------ | ----------------------- | ----------------- | --------------- | ------- |
-| 2.7.x        | 2.13.1, 2.12.6, 2.11.12 |                   | play27-json-ops | [ ![Download](https://api.bintray.com/packages/rallyhealth/maven/play27-json-ops/images/download.svg) ](https://bintray.com/rallyhealth/maven/play27-json-ops/_latestVersion) |
-| 2.7.x        | 2.13.1, 2.12.6, 2.11.12 | 3.1.x             | play27-json-tests-sc14 | [ ![Download](https://api.bintray.com/packages/rallyhealth/maven/play27-json-tests-sc14/images/download.svg) ](https://bintray.com/rallyhealth/maven/play27-json-tests-sc14/_latestVersion) |
-| 2.6.x        | 2.12.6, 2.11.12         |                   | play26-json-ops | [ ![Download](https://api.bintray.com/packages/rallyhealth/maven/play26-json-ops/images/download.svg) ](https://bintray.com/rallyhealth/maven/play26-json-ops/_latestVersion) |
-| 2.6.x        | 2.12.6, 2.11.12         | 3.0.x             | play26-json-tests-sc13 | [ ![Download](https://api.bintray.com/packages/rallyhealth/maven/play26-json-tests-sc13/images/download.svg) ](https://bintray.com/rallyhealth/maven/play26-json-tests-sc13/_latestVersion) |
-| 2.5.x        | 2.11.12                 |                   | play25-json-ops | [ ![Download](https://api.bintray.com/packages/rallyhealth/maven/play25-json-ops/images/download.svg) ](https://bintray.com/rallyhealth/maven/play25-json-ops/_latestVersion) |
-| 2.5.x        | 2.11.12                 | 3.1.x             | play25-json-tests-sc14 | [ ![Download](https://api.bintray.com/packages/rallyhealth/maven/play25-json-tests-sc14/images/download.svg) ](https://bintray.com/rallyhealth/maven/play25-json-tests-sc14/_latestVersion) |
-| 2.5.x        | 2.11.12                 | 3.0.x             | play25-json-tests-sc13 | [ ![Download](https://api.bintray.com/packages/rallyhealth/maven/play25-json-tests-sc13/images/download.svg) ](https://bintray.com/rallyhealth/maven/play25-json-tests-sc13/_latestVersion) |
-| 2.5.x        | 2.11.12                 | 2.2.x             | play25-json-tests-sc12 | [ ![Download](https://api.bintray.com/packages/rallyhealth/maven/play25-json-tests-sc12/images/download.svg) ](https://bintray.com/rallyhealth/maven/play25-json-tests-sc12/_latestVersion) |
-
-## 2.X Branch
-
-| play version | scala versions | scalatest version | artifact name          | artifact version |
-| ------------ | -------------- | ----------------- | ---------------------- | ---------------- |
-| 2.5.x        | 2.11.12        |                   | play25-json-ops        | 2.1.1            |
-| 2.5.x        | 2.11.12        | 3.0.x             | play25-json-tests      | 2.1.1            |
-| 2.5.x        | 2.11.12        | 2.2.x             | play25-json-tests-sc12 | 2.1.1            |
-| 2.3.x        | 2.11.12        |                   | play23-json-ops        | 2.1.1            |
-| 2.3.x        | 2.11.12        | 3.0.x             | play23-json-tests      | 2.1.1            |
-| 2.3.x        | 2.11.12        | 2.2.x             | play23-json-tests-sc12 | 2.1.1            |
+These artifacts were published to Bintray, which was shutdown. These artifacts will NOT be ported to Maven Central.
 
 # Getting Started
 
-Pretty much all of these tools become available when you `import `[`play.api.libs.json.ops._`](src/main/scala/play/api/libs/json/ops/package.scala)
+Pretty much all of these tools become available when you `import `[`play.api.libs.json.ops.v4._`](src/main/scala/play/api/libs/json/ops/package.scala)
 
 ## Dependencies
 
@@ -68,7 +48,7 @@ Pretty much all of these tools become available when you `import `[`play.api.lib
 
 ## Implicits
 
-By importing `play.api.libs.json.ops._`, you get access to:
+By importing `play.api.libs.json.ops.v4._`, you get access to:
 
 * `PlayJsonMacros.nullableReads` macro that will read `null` as `[]` for all container fields of a `case class`
 * `Reads`, `Format`, and `OFormat` extension methods to recover from exceptions
