@@ -21,10 +21,10 @@ implicits and tools for:
 
 | play version | scala versions | scalatest version | artifact name | artifact link |
 | :---: | :---------------------: | :---: | :---------------------: | :-----------: |
-| 2.8.x | 2.13.5, 2.12.6, 2.11.12 |       | play28-json-ops-v4      | ![Download](https://maven-badges.herokuapp.com/maven-central/com.rallyhealth/play28-json-ops-v4_2.13/badge.svg?style=flat) |
-| 2.8.x | 2.13.5, 2.12.6, 2.11.12 | 3.2.x | play28-json-tests-sc14  | ![Download](https://maven-badges.herokuapp.com/maven-central/com.rallyhealth/play28-json-tests-sc14_2.13/badge.svg?style=flat) |
-| 2.7.x | 2.13.5, 2.12.6, 2.11.12 |       | play27-json-ops-v4      | ![Download](https://maven-badges.herokuapp.com/maven-central/com.rallyhealth/play27-json-ops-v4_2.13/badge.svg?style=flat) |
-| 2.7.x | 2.13.5, 2.12.6, 2.11.12 | 3.2.x | play27-json-tests-sc14  | ![Download](https://maven-badges.herokuapp.com/maven-central/com.rallyhealth/play27-json-tests-sc14_2.13/badge.svg?style=flat) |
+| 2.8.x | 2.13.8, 2.12.6, 2.11.12 |       | play28-json-ops-v4      | ![Download](https://maven-badges.herokuapp.com/maven-central/com.rallyhealth/play28-json-ops-v4_2.13/badge.svg?style=flat) |
+| 2.8.x | 2.13.8, 2.12.6, 2.11.12 | 3.2.x | play28-json-tests-sc14  | ![Download](https://maven-badges.herokuapp.com/maven-central/com.rallyhealth/play28-json-tests-sc14_2.13/badge.svg?style=flat) |
+| 2.7.x | 2.13.8, 2.12.6, 2.11.12 |       | play27-json-ops-v4      | ![Download](https://maven-badges.herokuapp.com/maven-central/com.rallyhealth/play27-json-ops-v4_2.13/badge.svg?style=flat) |
+| 2.7.x | 2.13.8, 2.12.6, 2.11.12 | 3.2.x | play27-json-tests-sc14  | ![Download](https://maven-badges.herokuapp.com/maven-central/com.rallyhealth/play27-json-tests-sc14_2.13/badge.svg?style=flat) |
 | 2.6.x | 2.12.6, 2.11.12         |       | play26-json-ops-v4      | ![Download](https://maven-badges.herokuapp.com/maven-central/com.rallyhealth/play26-json-ops-v4_2.12/badge.svg?style=flat) |
 | 2.6.x | 2.12.6, 2.11.12         | 3.0.x | play26-json-tests-sc13  | ![Download](https://maven-badges.herokuapp.com/maven-central/com.rallyhealth/play26-json-tests-sc13_2.12/badge.svg?style=flat) |
 | 2.5.x | 2.11.12                 |       | play25-json-ops-v4      | ![Download](https://maven-badges.herokuapp.com/maven-central/com.rallyhealth/play25-json-ops-v4_2.11/badge.svg?style=flat) |
@@ -38,7 +38,7 @@ These artifacts were published to Bintray, which was shutdown. These artifacts w
 
 # Getting Started
 
-Pretty much all of these tools become available when you `import `[`play.api.libs.json.ops.v4._`](src/main/scala/play/api/libs/json/ops/package.scala)
+Pretty much all of these tools become available when you `import `[`play.api.libs.json.ops.v4._`](src/main/scala/play/api/libs/json/ops/v4/package.scala)
 
 ## Dependencies
 
